@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root {
     --bg: #0b0d14; --surface: #13161f; --surface2: #1c2033; --border: #252a3d;
@@ -5369,13 +5370,33 @@ function b3DragLeave(e,k) { document.getElementById('b3-up-'+k).classList.remove
 function b3Drop(e,k) { e.preventDefault(); document.getElementById('b3-up-'+k).classList.remove('b3-dragover'); if (e.dataTransfer.files[0]) b3LoadFile(k,e.dataTransfer.files[0]); }
 function b3FileSelect(inp,k) { if (inp.files&&inp.files[0]) b3LoadFile(k,inp.files[0]); }
 function b3LoadFile(k,file) {
-  var enc = (k==='irpf') ? 'windows-1252' : 'windows-1252';
-  var rd = new FileReader(); rd.onload=function(e){
-    b3.files[k]={name:file.name, content:e.target.result};
+  var name = file.name.toLowerCase();
+  var isXlsx = name.endsWith('.xlsx') || name.endsWith('.xls') || name.endsWith('.xlsm');
+
+  function setLoaded(content, label) {
+    b3.files[k] = {name:file.name, content:content};
     var box=document.getElementById('b3-up-'+k); var nm=document.getElementById('b3-up-'+k+'-name');
-    if (box) box.classList.add('loaded'); if (nm){nm.style.display='';nm.textContent=file.name;}
+    if (box) box.classList.add('loaded');
+    if (nm) { nm.style.display=''; nm.textContent=label||file.name; }
     b3UpdateIniciar();
-  }; rd.readAsText(file, enc);
+  }
+
+  if (isXlsx) {
+    var rd = new FileReader();
+    rd.onload = function(e) {
+      try {
+        var wb = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
+        var ws = wb.Sheets[wb.SheetNames[0]];
+        var csv = XLSX.utils.sheet_to_csv(ws, {FS:';', blankrows:false});
+        setLoaded(csv, file.name + ' (XLSX→CSV)');
+      } catch(err) { toast('Erro ao ler XLSX: '+err.message,'error'); }
+    };
+    rd.readAsArrayBuffer(file);
+  } else {
+    var rd2 = new FileReader();
+    rd2.onload = function(e) { setLoaded(e.target.result); };
+    rd2.readAsText(file, 'windows-1252');
+  }
 }
 function b3UpdateIniciar() {
   var btn=document.getElementById('b3-btn-iniciar'); var ok=!!b3.files.neg;
