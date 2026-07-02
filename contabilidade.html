@@ -341,7 +341,7 @@
 
   /* REINF PAGE */
   .reinf-wrap { overflow-x: auto; }
-  .reinf-wrap table { min-width: 980px; width: 100%; border-collapse: collapse; }
+  .reinf-wrap table { min-width: 1280px; width: 100%; border-collapse: collapse; }
   .reinf-wrap th { padding: 9px 10px; text-align: center; font-size: 9px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; background: var(--surface2); }
   .reinf-wrap th.empresa-col { text-align: left; min-width: 230px; position: sticky; left: 0; background: var(--surface2); z-index: 2; }
   .reinf-wrap td { padding: 8px 10px; border-top: 1px solid rgba(37,42,61,.7); text-align: center; vertical-align: middle; }
@@ -2443,7 +2443,7 @@ function renderDashboard() {
   var dashReinf = getReinf();
   var dashFinance = getReinfFinance();
   var dashReinfTotal = 0, dashReinfDone = 0, dashReinfPending = 0;
-  var dashRetidos = 0, dashLucros = 0;
+  var dashCompaniesWithRetentions = 0, dashProfitCompanies = 0;
   empresas.forEach(function(e) {
     var dashKey = reinfRecordKey(e.id, dashAno, dashMes);
     var dashStatus = dashReinf[dashKey] || 'pendente';
@@ -2453,8 +2453,11 @@ function renderDashboard() {
       else dashReinfPending++;
     }
     var dashValues = dashFinance[dashKey] || {};
-    dashRetidos += Number(dashValues.retidos) || 0;
-    dashLucros += Number(dashValues.lucros) || 0;
+    var dashInss = Number(dashValues.inss) || 0;
+    var dashIrrf = Number(dashValues.irrf) || 0;
+    var dashCsrf = Number(dashValues.csrf) || 0;
+    if (dashInss > 0 || dashIrrf > 0 || dashCsrf > 0) dashCompaniesWithRetentions++;
+    if ((Number(dashValues.lucros) || 0) > 0) dashProfitCompanies++;
   });
   var dashReinfPct = dashReinfTotal ? Math.round(dashReinfDone / dashReinfTotal * 100) : 0;
   var ic = {
@@ -2495,11 +2498,11 @@ function renderDashboard() {
       '<div class="stat-card blue"><div class="stat-label">ReINF a entregar</div>' +
       '<div class="stat-value" style="color:var(--accent2)">' + dashReinfPct + '%</div>' +
       '<div class="stat-sub">Competência ' + dashCompetenciaLabel + ' · entrega ' + dashEntregaLabel + ' · ' + dashReinfPending + ' pendentes</div></div>' +
-      '<div class="stat-card green"><div class="stat-label">Impostos retidos</div>' +
-      '<div class="stat-value" style="font-size:21px;color:var(--green)">' + fmtReinfCurrency(dashRetidos) + '</div>' +
-      '<div class="stat-sub">Competência ' + dashCompetenciaLabel + '</div></div>' +
-      '<div class="stat-card orange"><div class="stat-label">Lucros distribuídos</div>' +
-      '<div class="stat-value" style="font-size:21px;color:var(--orange)">' + fmtReinfCurrency(dashLucros) + '</div>' +
+      '<div class="stat-card green"><div class="stat-label">Empresas com retenções</div>' +
+      '<div class="stat-value" style="color:var(--green)">' + dashCompaniesWithRetentions + '</div>' +
+      '<div class="stat-sub">INSS, IRRF ou CSRF · competência ' + dashCompetenciaLabel + '</div></div>' +
+      '<div class="stat-card orange"><div class="stat-label">Empresas com lucros distribuídos</div>' +
+      '<div class="stat-value" style="color:var(--orange)">' + dashProfitCompanies + '</div>' +
       '<div class="stat-sub">Competência ' + dashCompetenciaLabel + '</div></div>';
   }
 
@@ -3548,7 +3551,8 @@ function renderReinf() {
   if (nextBtn && compSel) nextBtn.disabled = compSel.selectedIndex <= 0;
 
   // KPIs
-  var entregue = 0, pendente = 0, atrasado = 0, retidos = 0, lucros = 0;
+  var entregue = 0, pendente = 0, atrasado = 0;
+  var totalInss = 0, totalIrrf = 0, totalCsrf = 0, lucros = 0;
   list.forEach(function(e) {
     var key = reinfRecordKey(e.id, ano, mes);
     var st = reinf[key] || 'pendente';
@@ -3556,7 +3560,9 @@ function renderReinf() {
     else if (st === 'pendente') pendente++;
     else if (st === 'atrasado') atrasado++;
     var values = finance[key] || {};
-    retidos += Number(values.retidos) || 0;
+    totalInss += Number(values.inss) || 0;
+    totalIrrf += Number(values.irrf) || 0;
+    totalCsrf += Number(values.csrf) || 0;
     lucros += Number(values.lucros) || 0;
   });
   var totalEligible = entregue + pendente + atrasado;
@@ -3566,7 +3572,9 @@ function renderReinf() {
     '<div class="reinf-kpi"><div class="reinf-kpi-label">Pendentes</div><div class="reinf-kpi-val" style="color:var(--yellow)">' + pendente + '</div></div>' +
     '<div class="reinf-kpi"><div class="reinf-kpi-label">Atrasadas</div><div class="reinf-kpi-val" style="color:var(--red)">' + atrasado + '</div></div>' +
     '<div class="reinf-kpi"><div class="reinf-kpi-label">Cumprimento</div><div class="reinf-kpi-val" style="color:' + (pct>=80?'var(--green)':pct>=50?'var(--yellow)':'var(--red)') + '">' + pct + '%</div></div>' +
-    '<div class="reinf-kpi"><div class="reinf-kpi-label">Impostos retidos</div><div class="reinf-kpi-val" style="font-size:19px;color:var(--blue)">' + fmtReinfCurrency(retidos) + '</div></div>' +
+    '<div class="reinf-kpi"><div class="reinf-kpi-label">REINF INSS</div><div class="reinf-kpi-val" style="font-size:19px;color:var(--blue)">' + fmtReinfCurrency(totalInss) + '</div></div>' +
+    '<div class="reinf-kpi"><div class="reinf-kpi-label">REINF IRRF</div><div class="reinf-kpi-val" style="font-size:19px;color:var(--blue)">' + fmtReinfCurrency(totalIrrf) + '</div></div>' +
+    '<div class="reinf-kpi"><div class="reinf-kpi-label">REINF CSRF</div><div class="reinf-kpi-val" style="font-size:19px;color:var(--blue)">' + fmtReinfCurrency(totalCsrf) + '</div></div>' +
     '<div class="reinf-kpi"><div class="reinf-kpi-label">Lucros distribuídos</div><div class="reinf-kpi-val" style="font-size:19px;color:var(--orange)">' + fmtReinfCurrency(lucros) + '</div></div>';
 
   // Uma competência por vez
@@ -3574,7 +3582,9 @@ function renderReinf() {
   var disabled = canEdit ? '' : ' disabled';
   var html = '<table><thead><tr>' +
     '<th class="empresa-col">Empresa</th><th>Status</th>' +
-    '<th style="text-align:right">Impostos retidos (R$)</th>' +
+    '<th style="text-align:right">REINF INSS (R$)</th>' +
+    '<th style="text-align:right">REINF IRRF (R$)</th>' +
+    '<th style="text-align:right">REINF CSRF (R$)</th>' +
     '<th style="text-align:right">Distribuição de lucros (R$)</th>' +
     '<th style="text-align:left">Observações do mês</th></tr></thead><tbody>';
 
@@ -3590,11 +3600,13 @@ function renderReinf() {
         '<option value="entregue"' + (st==='entregue'?' selected':'') + '>Entregue</option>' +
         '<option value="atrasado"' + (st==='atrasado'?' selected':'') + '>Atrasado</option>' +
         '<option value="na"' + (st==='na'?' selected':'') + '>Não se aplica</option></select></td>' +
-      '<td><input class="reinf-money-input" inputmode="decimal" placeholder="0,00" value="' + reinfEscape(fmtReinfInput(values.retidos)) + '" onchange="saveReinfFinanceField(\'' + e.id + '\',' + ano + ',' + mes + ',\'retidos\',this.value)" onfocus="this.select()"' + disabled + '></td>' +
+      '<td><input class="reinf-money-input" inputmode="decimal" placeholder="0,00" value="' + reinfEscape(fmtReinfInput(values.inss)) + '" onchange="saveReinfFinanceField(\'' + e.id + '\',' + ano + ',' + mes + ',\'inss\',this.value)" onfocus="this.select()"' + disabled + '></td>' +
+      '<td><input class="reinf-money-input" inputmode="decimal" placeholder="0,00" value="' + reinfEscape(fmtReinfInput(values.irrf)) + '" onchange="saveReinfFinanceField(\'' + e.id + '\',' + ano + ',' + mes + ',\'irrf\',this.value)" onfocus="this.select()"' + disabled + '></td>' +
+      '<td><input class="reinf-money-input" inputmode="decimal" placeholder="0,00" value="' + reinfEscape(fmtReinfInput(values.csrf)) + '" onchange="saveReinfFinanceField(\'' + e.id + '\',' + ano + ',' + mes + ',\'csrf\',this.value)" onfocus="this.select()"' + disabled + '></td>' +
       '<td><input class="reinf-money-input" inputmode="decimal" placeholder="0,00" value="' + reinfEscape(fmtReinfInput(values.lucros)) + '" onchange="saveReinfFinanceField(\'' + e.id + '\',' + ano + ',' + mes + ',\'lucros\',this.value)" onfocus="this.select()"' + disabled + '></td>' +
       '<td><input class="reinf-note-input" maxlength="180" placeholder="Observação opcional" value="' + reinfEscape(values.observacao||'') + '" onchange="saveReinfFinanceField(\'' + e.id + '\',' + ano + ',' + mes + ',\'observacao\',this.value)"' + disabled + '></td></tr>';
   });
-  html += list.length ? '</tbody></table>' : '<tr><td colspan="5" style="padding:24px;color:var(--text3)">Nenhuma empresa encontrada para este filtro.</td></tr></tbody></table>';
+  html += list.length ? '</tbody></table>' : '<tr><td colspan="7" style="padding:24px;color:var(--text3)">Nenhuma empresa encontrada para este filtro.</td></tr></tbody></table>';
   document.getElementById('reinf-matrix').innerHTML = html;
 }
 
@@ -3612,10 +3624,10 @@ function setReinfStatus(eid, ano, mes, status) {
 
 function saveReinfFinanceField(eid, ano, mes, field, value) {
   if (currentUser && currentUser.role === 'viewer') { toast('Sem permissão para editar', 'error'); return; }
-  if (['retidos','lucros','observacao'].indexOf(field) < 0) return;
+  if (['inss','irrf','csrf','lucros','observacao'].indexOf(field) < 0) return;
   var finance = getReinfFinance();
   var key = reinfRecordKey(eid, ano, mes);
-  var record = finance[key] || {retidos:0, lucros:0, observacao:''};
+  var record = finance[key] || {inss:0, irrf:0, csrf:0, lucros:0, observacao:''};
   var newValue = field === 'observacao' ? String(value || '').trim() : parseReinfMoney(value);
   if (record[field] === newValue) return;
   record[field] = newValue;
@@ -3623,7 +3635,7 @@ function saveReinfFinanceField(eid, ano, mes, field, value) {
   saveReinfFinance(finance);
   var empresa = empresas.find(function(e){return e.id===eid;});
   if (empresa) {
-    var fieldLabel = {retidos:'Impostos retidos', lucros:'Lucros distribuídos', observacao:'Observação ReINF'}[field];
+    var fieldLabel = {inss:'REINF INSS', irrf:'REINF IRRF', csrf:'REINF CSRF', lucros:'Lucros distribuídos', observacao:'Observação ReINF'}[field];
     var displayValue = field === 'observacao' ? (newValue || 'removida') : fmtReinfCurrency(newValue);
     addAuditLog('reinf', fieldLabel + ' ' + REINF_MESES[mes] + '/' + ano + ': ' + displayValue + ' — ' + empresa.nome.slice(0,25));
   }
@@ -3641,7 +3653,7 @@ function exportReinfCSV() {
   var finance = getReinfFinance();
   var rf = document.getElementById('reinf-filter-regime').value;
   var list = rf ? empresas.filter(function(e){return e.regime===rf;}) : empresas.slice();
-  var lines = [['Competência','Empresa','CNPJ','Regime','Status','Impostos retidos','Distribuição de lucros','Observações'].join(';')];
+  var lines = [['Competência','Empresa','CNPJ','Regime','Status','REINF INSS','REINF IRRF','REINF CSRF','Distribuição de lucros','Observações'].join(';')];
   list.sort(function(a,b){return a.nome.localeCompare(b.nome);}).forEach(function(e) {
     var key = reinfRecordKey(e.id, ano, mes);
     var values = finance[key] || {};
@@ -3649,7 +3661,9 @@ function exportReinfCSV() {
       reinfCsvCell(String(mes + 1).padStart(2,'0') + '/' + ano),
       reinfCsvCell(e.nome), reinfCsvCell(e.cnpj||''), reinfCsvCell(e.regime||''),
       reinfCsvCell(reinf[key] || 'pendente'),
-      reinfCsvCell((Number(values.retidos)||0).toFixed(2).replace('.',',')),
+      reinfCsvCell((Number(values.inss)||0).toFixed(2).replace('.',',')),
+      reinfCsvCell((Number(values.irrf)||0).toFixed(2).replace('.',',')),
+      reinfCsvCell((Number(values.csrf)||0).toFixed(2).replace('.',',')),
       reinfCsvCell((Number(values.lucros)||0).toFixed(2).replace('.',',')),
       reinfCsvCell(values.observacao||'')
     ].join(';'));
