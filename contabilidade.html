@@ -1034,7 +1034,7 @@
     </div>
     <div class="nav-item" onclick="showPage('declaracoes')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-      <span>Declarações</span>
+      <span>ReINF Mensal</span>
     </div>
     <div class="nav-item" onclick="showPage('relatorios')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
@@ -1167,7 +1167,7 @@
       <!-- Row 5: lists + activity -->
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;">
         <div class="dash-card">
-          <div class="dash-card-title">Bancos em Atraso</div>
+          <div class="dash-card-title">Bancos Pendentes</div>
           <div id="late-banks" style="display:flex;flex-direction:column;gap:6px;"></div>
         </div>
         <div class="dash-card">
@@ -1221,10 +1221,11 @@
         </select>
         <select class="filter-select" id="filter-banco" onchange="renderTable()">
           <option value="">Status Banco</option>
-          <option value="ok">Em dia (≤1 mês)</option>
-          <option value="atencao">Atenção (2 meses)</option>
-          <option value="atrasado">Atrasado (3+ meses)</option>
+          <option value="ok">Em dia (até o mês anterior)</option>
+          <option value="atencao">Atenção (1 competência pendente)</option>
+          <option value="atrasado">Atrasado (2+ competências pendentes)</option>
           <option value="sem_mov">Sem Movimento</option>
+          <option value="sem_data">Sem competência</option>
         </select>
         <select class="filter-select" id="filter-grupo" onchange="renderTable()">
           <option value="">Grupo</option>
@@ -1262,7 +1263,7 @@
         <span class="bulk-count" id="bulk-count">0 selecionadas</span>
         <button class="btn btn-ghost btn-sm" onclick="bulkBancoHoje()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
-          Banco hoje
+          Banco: mês anterior
         </button>
         <button class="btn btn-ghost btn-sm" onclick="bulkSetPrio('alta')"><span style="color:var(--red);">●</span> Alta</button>
         <button class="btn btn-ghost btn-sm" onclick="bulkSetPrio('media')"><span style="color:var(--yellow);">●</span> Média</button>
@@ -1299,26 +1300,14 @@
   <div id="page-bancos" class="page">
     <div class="topbar"><h1>Controle de Bancos</h1></div>
     <div class="content">
-      <div class="tabs">
-        <div class="tab active" onclick="setBankTab('resumo',this)">Resumo</div>
-        <div class="tab" onclick="setBankTab('timeline',this)">Timeline</div>
+      <div class="b3-info-box" style="margin:0 0 14px;">
+        A competência esperada é o <strong>mês anterior</strong>. O atraso mostra quantas competências ainda faltam, não quantos meses se passaram no calendário.
       </div>
-      <div id="bank-tab-resumo">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Empresa</th><th>CNPJ</th><th>Último Lançamento</th><th>Dias</th><th>Status</th><th>Contato</th><th>Obs Banco</th><th></th></tr></thead>
-            <tbody id="bank-table-body"></tbody>
-          </table>
-        </div>
-      </div>
-      <div id="bank-tab-timeline" style="display:none;">
-        <div style="display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap;">
-          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);"><div style="width:9px;height:9px;border-radius:50%;background:var(--green)"></div>Atualizado (≤7 dias)</div>
-          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);"><div style="width:9px;height:9px;border-radius:50%;background:var(--yellow)"></div>Atenção (8-30 dias)</div>
-          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);"><div style="width:9px;height:9px;border-radius:50%;background:var(--red)"></div>Atrasado (>30 dias)</div>
-          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);"><div style="width:9px;height:9px;border-radius:50%;background:var(--text3)"></div>S/M ou sem data</div>
-        </div>
-        <div id="bank-timeline" style="display:flex;flex-direction:column;gap:4px;"></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Empresa</th><th>Banco(s)</th><th>Competência</th><th>Pendência real</th><th>Status</th><th>Ações</th></tr></thead>
+          <tbody id="bank-table-body"></tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -2063,10 +2052,6 @@ const DECL_LIST = [
   {id:'irpf',    nome:'IRPF Sócios',  period:'Anual'},
 ];
 
-const DECL_STATUS_CYCLE = ['pendente','entregue','atrasado','na'];
-const DECL_STATUS_LABEL = {entregue:'E', pendente:'P', atrasado:'A', na:'-'};
-const DECL_STATUS_CLASS = {entregue:'dm-entregue', pendente:'dm-pendente', atrasado:'dm-atrasado', na:'dm-na'};
-
 // ===================== DATA =====================
 var empresas = JSON.parse(localStorage.getItem('empresas') || 'null');
 
@@ -2145,10 +2130,10 @@ function loadDefaultData() {
       email: r[8], whatsapp: r[9],
       responsavel: 'Douglas',
       bancos: '',
-      ultimoBanco: mkd(bkRaw),
+      mesAnoBanco: dateToYM(mkd(bkRaw)),
       statusBanco: bankStat(bkRaw),
       proxConciliacao: '',
-      ultimaAplicacao: (apRaw && apRaw !== 'Sem aplic.' && apRaw !== 'ZEROU' && apRaw !== 'SM') ? mkd(apRaw) : '',
+      mesAnoAplic: (apRaw && apRaw !== 'Sem aplic.' && apRaw !== 'ZEROU' && apRaw !== 'SM') ? dateToYM(mkd(apRaw)) : '',
       statusAplic: apStat(apRaw),
       tipoAplic: '', bancoAplic: '',
       vencSimples: '', vencIR: '',
@@ -2163,12 +2148,6 @@ function loadDefaultData() {
 // ===================== HELPERS =====================
 function save() { localStorage.setItem('empresas', JSON.stringify(empresas)); }
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
-
-function daysSince(dateStr) {
-  if (!dateStr) return null;
-  var diff = new Date() - new Date(dateStr);
-  return Math.floor(diff / 86400000);
-}
 
 function formatDate(dateStr) {
   if (!dateStr) return '—';
@@ -2187,11 +2166,14 @@ function fmtMonth(ym) {
 
 // Diferença em meses: positivo = meses atrás
 function monthsAgo(ym) {
-  if (!ym) return null;
+  if (!ym || !/^\d{4}-\d{2}$/.test(ym)) return null;
   var parts = ym.split('-');
+  var year = parseInt(parts[0], 10);
+  var month = parseInt(parts[1], 10);
+  if (!Number.isFinite(year) || month < 1 || month > 12) return null;
   var now = new Date();
   var nowTotal = now.getFullYear() * 12 + now.getMonth();
-  var targetTotal = parseInt(parts[0]) * 12 + (parseInt(parts[1]) - 1);
+  var targetTotal = year * 12 + (month - 1);
   return nowTotal - targetTotal;
 }
 
@@ -2201,28 +2183,54 @@ function dateToYM(dateStr) {
   return dateStr.slice(0, 7);
 }
 
-// Status bancário baseado em mês/ano
-// Regra: lançar mês anterior é normal (monthsAgo=1 → em dia)
+// Uma competência é considerada em dia quando alcança pelo menos o mês anterior.
+// Ex.: em julho, junho está em dia; maio representa 1 competência pendente.
+const EXPECTED_COMPETENCE_LAG = 1;
+
+function monthYM(offset) {
+  var now = new Date();
+  var d = new Date(now.getFullYear(), now.getMonth() + (offset || 0), 1);
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+}
+
+function expectedCompetenceYM() { return monthYM(-EXPECTED_COMPETENCE_LAG); }
+
+function competenceField(kind) {
+  return {banco:'mesAnoBanco', aplic:'mesAnoAplic', fechamento:'mesAnoFechamento'}[kind] || '';
+}
+
+function getCompetence(e, kind) {
+  var field = competenceField(kind);
+  return field ? (e[field] || '') : '';
+}
+
+function competenceStatus(e, kind) {
+  if (kind === 'banco' && e.statusBanco === 'sem_movimento') {
+    return {state:'inactive', cls:'badge-none', label:'S/Movimento', color:'var(--text3)', ym:'', ageMonths:null, overdueMonths:null, months:null};
+  }
+  if (kind === 'aplic') {
+    if (e.statusAplic === 'sem_aplic') return {state:'inactive', cls:'badge-none', label:'Sem aplicação', color:'var(--text3)', ym:'', ageMonths:null, overdueMonths:null, months:null};
+    if (e.statusAplic === 'zerou') return {state:'inactive', cls:'badge-none', label:'Aplicação zerada', color:'var(--text3)', ym:'', ageMonths:null, overdueMonths:null, months:null};
+    if (e.statusAplic === 'sem_movimento') return {state:'inactive', cls:'badge-none', label:'S/Movimento', color:'var(--text3)', ym:'', ageMonths:null, overdueMonths:null, months:null};
+  }
+
+  var ym = getCompetence(e, kind);
+  var age = monthsAgo(ym);
+  if (age === null) return {state:'none', cls:'badge-none', label:'Sem competência', color:'var(--text3)', ym:'', ageMonths:null, overdueMonths:null, months:null};
+  if (age < 0) return {state:'warning', cls:'badge-warn', label:'Competência futura', color:'var(--yellow)', ym:ym, ageMonths:age, overdueMonths:0, months:age};
+
+  var overdue = Math.max(0, age - EXPECTED_COMPETENCE_LAG);
+  if (overdue === 0) return {state:'ok', cls:'badge-ok', label:'Em dia', color:'var(--green)', ym:ym, ageMonths:age, overdueMonths:0, months:age};
+  if (overdue === 1) return {state:'warning', cls:'badge-warn', label:'1 competência pendente', color:'var(--yellow)', ym:ym, ageMonths:age, overdueMonths:1, months:age};
+  return {state:'late', cls:'badge-late', label:overdue + ' competências pendentes', color:'var(--red)', ym:ym, ageMonths:age, overdueMonths:overdue, months:age};
+}
+
 function bankStatus(e) {
-  if (e.statusBanco === 'sem_movimento') return {cls:'badge-none', label:'S/Movimento', color:'var(--text3)', months: null};
-  var ym = e.mesAnoBanco || dateToYM(e.ultimoBanco);
-  var ago = monthsAgo(ym);
-  if (ago === null) return {cls:'badge-none', label:'Sem lançamento', color:'var(--text3)', months: null};
-  if (ago <= 1) return {cls:'badge-ok', label:'Em dia', color:'var(--green)', months: ago};
-  if (ago === 2) return {cls:'badge-warn', label:ago+'m atraso', color:'var(--yellow)', months: ago};
-  return {cls:'badge-late', label:ago+'m atraso', color:'var(--red)', months: ago};
+  return competenceStatus(e, 'banco');
 }
 
 function aplicLabel(e) {
-  if (e.statusAplic === 'sem_aplic') return {label:'Sem aplic.', cls:'badge-none'};
-  if (e.statusAplic === 'zerou') return {label:'Zerou', cls:'badge-warn'};
-  if (e.statusAplic === 'sem_movimento') return {label:'S/Movimento', cls:'badge-none'};
-  var ym = e.mesAnoAplic || dateToYM(e.ultimaAplicacao);
-  var ago = monthsAgo(ym);
-  if (ago === null) return {label:'—', cls:'badge-none'};
-  if (ago <= 1) return {label:fmtMonth(ym), cls:'badge-ok'};
-  if (ago <= 2) return {label:fmtMonth(ym), cls:'badge-warn'};
-  return {label:fmtMonth(ym), cls:'badge-late'};
+  return competenceStatus(e, 'aplic');
 }
 
 function prioClass(p) { return {alta:'badge-high',media:'badge-medium',baixa:'badge-low'}[p] || 'badge-none'; }
@@ -2287,15 +2295,13 @@ function openInlineMonth(ev, empresaId, field) {
   var fieldMap = {banco:'mesAnoBanco', aplic:'mesAnoAplic', fechamento:'mesAnoFechamento'};
   var label = {banco:'Mês/Ano do Banco', aplic:'Mês/Ano da Aplicação', fechamento:'Mês/Ano do Fechamento'}[field];
   var currentVal = e[fieldMap[field]] || '';
-  // fallback from old date fields
-  if (!currentVal && field === 'banco') currentVal = dateToYM(e.ultimoBanco);
-  if (!currentVal && field === 'aplic') currentVal = dateToYM(e.ultimaAplicacao);
 
   var popup = document.createElement('div');
   popup.className = 'inline-month-popup';
   popup.innerHTML =
     '<label>' + label + '</label>' +
-    '<input type="month" id="imp-input" value="' + currentVal + '">' +
+    '<input type="month" id="imp-input" max="' + monthYM(0) + '" value="' + currentVal + '">' +
+    '<button onclick="document.getElementById(\'imp-input\').value=expectedCompetenceYM()" style="width:100%;margin-top:6px;padding:6px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;background:var(--surface2);color:var(--accent2);border:1px solid var(--border);font-family:inherit;">Usar mês anterior (' + fmtMonth(expectedCompetenceYM()) + ')</button>' +
     '<div style="display:flex;gap:6px;margin-top:2px;">' +
       '<button onclick="saveInlineMonth(\'' + empresaId + '\',\'' + field + '\')" style="flex:1;padding:6px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;background:var(--accent);color:white;border:none;font-family:inherit;">Salvar</button>' +
       '<button onclick="clearInlineMonth(\'' + empresaId + '\',\'' + field + '\')" style="flex:1;padding:6px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;background:var(--surface2);color:var(--text2);border:1px solid var(--border);font-family:inherit;">Limpar</button>' +
@@ -2330,9 +2336,7 @@ function saveInlineMonth(empresaId, field) {
   e.lastModified = new Date().toISOString();
   save();
   closeInlineMonth();
-  renderTable();
-  renderDashboard();
-  updateNotifBadge();
+  refreshCoreViews();
   addAuditLog('edit', 'Mês ' + field + ' → ' + fmtMonth(val) + ' — ' + e.nome.slice(0,25));
   toast(e.nome.slice(0,20) + ' — ' + {banco:'Banco',aplic:'Aplicação',fechamento:'Fechamento'}[field] + ': ' + fmtMonth(val), 'success');
 }
@@ -2343,7 +2347,7 @@ function clearInlineMonth(empresaId, field) {
   var fieldMap = {banco:'mesAnoBanco', aplic:'mesAnoAplic', fechamento:'mesAnoFechamento'};
   e[fieldMap[field]] = '';
   e.lastModified = new Date().toISOString();
-  save(); closeInlineMonth(); renderTable();
+  save(); closeInlineMonth(); refreshCoreViews();
   toast('Campo limpo', 'info');
 }
 
@@ -2351,25 +2355,42 @@ function closeInlineMonth() {
   if (inlineMonthPopup) { inlineMonthPopup.remove(); inlineMonthPopup = null; }
 }
 
-// Migrar dados antigos (ultimoBanco date → mesAnoBanco YYYY-MM)
+function refreshCoreViews() {
+  renderTable();
+  renderDashboard();
+  renderBanks();
+  refreshGrupoFilter();
+  updateNotifBadge();
+  updateTasksBadge();
+}
+
+// Migração única: consolida os campos antigos de data nos campos de competência.
 function migrateData() {
   var changed = false;
   empresas.forEach(function(e) {
-    if (!e.mesAnoBanco && e.ultimoBanco) { e.mesAnoBanco = dateToYM(e.ultimoBanco); changed = true; }
+    if (!e.mesAnoBanco && e.ultimoBanco) {
+      // Datas no primeiro dia eram competências importadas; outras datas eram apenas a data do clique.
+      e.mesAnoBanco = /-01$/.test(e.ultimoBanco) ? dateToYM(e.ultimoBanco) : expectedCompetenceYM();
+      changed = true;
+    }
     if (!e.mesAnoAplic && e.ultimaAplicacao) { e.mesAnoAplic = dateToYM(e.ultimaAplicacao); changed = true; }
+    if (Object.prototype.hasOwnProperty.call(e, 'ultimoBanco')) { delete e.ultimoBanco; changed = true; }
+    if (Object.prototype.hasOwnProperty.call(e, 'ultimaAplicacao')) { delete e.ultimaAplicacao; changed = true; }
     if (e.anotacoes === undefined) { e.anotacoes = e.obs || ''; changed = true; }
   });
   if (changed) save();
 }
 
 // ===================== PAGES =====================
-var pageNames = ['dashboard','empresas','bancos','declaracoes','relatorios','usuarios','calendario','calculadora','tarefas','quadros','conversor','b3'];
 function showPage(name) {
   document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
   document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
-  document.getElementById('page-' + name).classList.add('active');
-  var idx = pageNames.indexOf(name);
-  if (idx >= 0) document.querySelectorAll('.nav-item')[idx].classList.add('active');
+  var page = document.getElementById('page-' + name);
+  if (!page) return;
+  page.classList.add('active');
+  Array.from(document.querySelectorAll('.nav-item')).forEach(function(item) {
+    if (item.getAttribute('onclick') === "showPage('" + name + "')") item.classList.add('active');
+  });
   var renders = {dashboard:renderDashboard, empresas:renderTable, bancos:renderBanks, declaracoes:renderReinf, relatorios:renderRelatorio, usuarios:renderUsers, calendario:renderCalendario, calculadora:renderCalculadora, tarefas:renderGlobalTasks, quadros:renderBoards, conversor:initConversor, b3:renderB3Page};
   if (renders[name]) renders[name]();
 }
@@ -2379,16 +2400,8 @@ function renderDashboard() {
   document.getElementById('today-date').textContent = new Date().toLocaleDateString('pt-BR', {weekday:'long',day:'2-digit',month:'long',year:'numeric'});
   var total = empresas.length;
   var altas = empresas.filter(function(e) { return e.prioridade === 'alta'; }).length;
-  var atrasados = empresas.filter(function(e) {
-    if (e.statusBanco === 'sem_movimento') return false;
-    var ago = monthsAgo(e.mesAnoBanco || dateToYM(e.ultimoBanco));
-    return ago !== null && ago >= 3;
-  }).length;
-  var ok = empresas.filter(function(e) {
-    if (e.statusBanco === 'sem_movimento') return false;
-    var ago = monthsAgo(e.mesAnoBanco || dateToYM(e.ultimoBanco));
-    return ago !== null && ago <= 1;
-  }).length;
+  var atrasados = empresas.filter(function(e) { return bankStatus(e).state === 'late'; }).length;
+  var ok = empresas.filter(function(e) { return bankStatus(e).state === 'ok'; }).length;
   var semMov = empresas.filter(function(e) { return e.statusBanco === 'sem_movimento'; }).length;
   var ic = {
     building: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
@@ -2399,19 +2412,16 @@ function renderDashboard() {
   };
   document.getElementById('stats-cards').innerHTML =
     '<div class="stat-card blue"><div class="stat-icon">' + ic.building + '</div><div class="stat-label">Total Empresas</div><div class="stat-value">' + total + '</div><div class="stat-sub">Carteira ativa</div></div>' +
-    '<div class="stat-card green"><div class="stat-icon">' + ic.check + '</div><div class="stat-label">Bancos OK</div><div class="stat-value" style="color:var(--green)">' + ok + '</div><div class="stat-sub">Atualizados ≤7 dias</div></div>' +
+    '<div class="stat-card green"><div class="stat-icon">' + ic.check + '</div><div class="stat-label">Bancos OK</div><div class="stat-value" style="color:var(--green)">' + ok + '</div><div class="stat-sub">Competência até ' + fmtMonth(expectedCompetenceYM()) + '</div></div>' +
     '<div class="stat-card yellow"><div class="stat-icon">' + ic.alert + '</div><div class="stat-label">Alta Prioridade</div><div class="stat-value" style="color:var(--yellow)">' + altas + '</div><div class="stat-sub">Requerem atenção</div></div>' +
-    '<div class="stat-card red"><div class="stat-icon">' + ic.clock + '</div><div class="stat-label">Bancos Atrasados</div><div class="stat-value" style="color:var(--red)">' + atrasados + '</div><div class="stat-sub">Mais de 30 dias</div></div>' +
-    '<div class="stat-card orange"><div class="stat-icon">' + ic.pause + '</div><div class="stat-label">Sem Movimento</div><div class="stat-value" style="color:var(--orange)">' + semMov + '</div><div class="stat-sub">S/M ou sem data</div></div>';
+    '<div class="stat-card red"><div class="stat-icon">' + ic.clock + '</div><div class="stat-label">Bancos Atrasados</div><div class="stat-value" style="color:var(--red)">' + atrasados + '</div><div class="stat-sub">2+ competências pendentes</div></div>' +
+    '<div class="stat-card orange"><div class="stat-icon">' + ic.pause + '</div><div class="stat-label">Sem Movimento</div><div class="stat-value" style="color:var(--orange)">' + semMov + '</div><div class="stat-sub">Fora do controle mensal</div></div>';
 
   var late = empresas.filter(function(e) {
-    if (e.statusBanco === 'sem_movimento') return false;
-    var ago = monthsAgo(e.mesAnoBanco || dateToYM(e.ultimoBanco));
-    return ago !== null && ago >= 2;
+    var state = bankStatus(e).state;
+    return state === 'warning' || state === 'late';
   }).sort(function(a,b) {
-    var aAgo = monthsAgo(a.mesAnoBanco || dateToYM(a.ultimoBanco)) || 0;
-    var bAgo = monthsAgo(b.mesAnoBanco || dateToYM(b.ultimoBanco)) || 0;
-    return bAgo - aAgo;
+    return (bankStatus(b).overdueMonths || 0) - (bankStatus(a).overdueMonths || 0);
   }).slice(0, 10);
   // Declarações summary
   var declPendente = 0, declAtrasado = 0;
@@ -2463,7 +2473,8 @@ function renderDashboard() {
   var healthEl = document.getElementById('health-score-val');
   var healthItemsEl = document.getElementById('health-items');
   if (healthEl) {
-    var bankOkPct = total > 0 ? Math.round(empresas.filter(function(e){ var d=daysSince(e.ultimoBanco); return d!==null&&d<=7&&e.statusBanco!=='sem_movimento'; }).length / total * 100) : 0;
+    var bankEligible = empresas.filter(function(e){ return bankStatus(e).state !== 'inactive'; });
+    var bankOkPct = bankEligible.length > 0 ? Math.round(bankEligible.filter(function(e){ return bankStatus(e).state === 'ok'; }).length / bankEligible.length * 100) : 0;
     var highPrioPct = total > 0 ? Math.round(empresas.filter(function(e){ return e.prioridade==='alta'; }).length / total * 100) : 0;
     var reinfDone = 0, reinfTot = 0;
     empresas.forEach(function(e) {
@@ -2484,12 +2495,12 @@ function renderDashboard() {
   }
 
   // ---- Gráficos de barras mensais ----
-  function buildMonthBars(fieldYM, fieldDate, maxMonths) {
+  function buildMonthBars(fieldYM, maxMonths) {
     var now = new Date();
     var buckets = {};
     var noData = 0;
     empresas.forEach(function(e) {
-      var ym = e[fieldYM] || dateToYM(e[fieldDate] || '');
+      var ym = e[fieldYM] || '';
       if (!ym) { noData++; return; }
       buckets[ym] = (buckets[ym] || 0) + 1;
     });
@@ -2528,11 +2539,11 @@ function renderDashboard() {
   }
 
   var elBM = document.getElementById('chart-bancos-mes');
-  if (elBM) elBM.innerHTML = buildMonthBars('mesAnoBanco', 'ultimoBanco', 6);
+  if (elBM) elBM.innerHTML = buildMonthBars('mesAnoBanco', 6);
   var elFM = document.getElementById('chart-fech-mes');
-  if (elFM) elFM.innerHTML = buildMonthBars('mesAnoFechamento', '', 6);
+  if (elFM) elFM.innerHTML = buildMonthBars('mesAnoFechamento', 6);
   var elAM = document.getElementById('chart-aplic-mes');
-  if (elAM) elAM.innerHTML = buildMonthBars('mesAnoAplic', 'ultimaAplicacao', 6);
+  if (elAM) elAM.innerHTML = buildMonthBars('mesAnoAplic', 6);
 
   // ---- Donut: Por Tipo ----
   var tipoMap = {};
@@ -2545,13 +2556,12 @@ function renderDashboard() {
   // ---- Donut: Status Bancos ----
   var bStatus = {emDia:0, atencao:0, atrasado:0, semMov:0, semData:0};
   empresas.forEach(function(e) {
-    if (e.statusBanco === 'sem_movimento') { bStatus.semMov++; return; }
-    var ym = e.mesAnoBanco || dateToYM(e.ultimoBanco);
-    var ago = monthsAgo(ym);
-    if (ago === null) bStatus.semData++;
-    else if (ago <= 1) bStatus.emDia++;
-    else if (ago === 2) bStatus.atencao++;
-    else bStatus.atrasado++;
+    var s = bankStatus(e);
+    if (s.state === 'inactive') bStatus.semMov++;
+    else if (s.state === 'none') bStatus.semData++;
+    else if (s.state === 'ok') bStatus.emDia++;
+    else if (s.state === 'warning') bStatus.atencao++;
+    else if (s.state === 'late') bStatus.atrasado++;
   });
   var bSegs = [
     {label:'Em dia',    value:bStatus.emDia,    color:'#22c55e'},
@@ -2566,13 +2576,12 @@ function renderDashboard() {
   // ---- Donut: Status Aplicações ----
   var aStatus = {emDia:0, atencao:0, atrasado:0, semAplic:0, semData:0};
   empresas.forEach(function(e) {
-    if (e.statusAplic === 'sem_aplic' || e.statusAplic === 'zerou') { aStatus.semAplic++; return; }
-    var ym = e.mesAnoAplic || dateToYM(e.ultimaAplicacao);
-    var ago = monthsAgo(ym);
-    if (ago === null) aStatus.semData++;
-    else if (ago <= 1) aStatus.emDia++;
-    else if (ago === 2) aStatus.atencao++;
-    else aStatus.atrasado++;
+    var s = competenceStatus(e, 'aplic');
+    if (s.state === 'inactive') aStatus.semAplic++;
+    else if (s.state === 'none') aStatus.semData++;
+    else if (s.state === 'ok') aStatus.emDia++;
+    else if (s.state === 'warning') aStatus.atencao++;
+    else if (s.state === 'late') aStatus.atrasado++;
   });
   var aSegs = [
     {label:'Em dia',    value:aStatus.emDia,    color:'#22c55e'},
@@ -2613,15 +2622,13 @@ function renderDashboard() {
 
   var lateEl = document.getElementById('late-banks');
   lateEl.innerHTML = late.length ? late.map(function(e) {
-    var ym = e.mesAnoBanco || dateToYM(e.ultimoBanco);
-    var ago = monthsAgo(ym) || 0;
-    var color = ago >= 3 ? 'var(--red)' : 'var(--yellow)';
-    var cls   = ago >= 3 ? 'badge-late' : 'badge-warn';
+    var s = bankStatus(e);
+    var ym = s.ym;
     return '<div onclick="openDetail(\'' + e.id + '\')" style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(37,42,61,.5);cursor:pointer;">' +
-      '<div style="width:7px;height:7px;border-radius:50%;background:' + color + ';box-shadow:0 0 5px ' + color + ';flex-shrink:0;"></div>' +
+      '<div style="width:7px;height:7px;border-radius:50%;background:' + s.color + ';box-shadow:0 0 5px ' + s.color + ';flex-shrink:0;"></div>' +
       '<span style="flex:1;font-size:12px;font-weight:500;color:var(--text);">' + e.nome.slice(0,26) + (e.nome.length > 26 ? '…' : '') + '</span>' +
       '<span style="font-size:10px;color:var(--text3);margin-right:4px;">' + (ym ? fmtMonth(ym) : '—') + '</span>' +
-      '<span class="badge ' + cls + '">' + ago + 'm</span></div>';
+      '<span class="badge ' + s.cls + '">' + s.label + '</span></div>';
   }).join('') : '<div style="color:var(--text3);font-size:12px;padding:8px 0;">Todos os bancos em dia ✓</div>';
 
   var hp = empresas.filter(function(e) { return e.prioridade === 'alta'; }).slice(0, 8);
@@ -2649,13 +2656,12 @@ function getFiltered() {
     if (ft && e.tipo !== ft) return false;
     if (fg && (e.grupo||'') !== fg) return false;
     if (fb) {
-      var sm = e.statusBanco === 'sem_movimento';
-      var ym = e.mesAnoBanco || dateToYM(e.ultimoBanco);
-      var ago = monthsAgo(ym);
-      if (fb === 'ok'      && !(ago !== null && ago <= 1 && !sm)) return false;
-      if (fb === 'atencao' && !(ago !== null && ago === 2)) return false;
-      if (fb === 'atrasado'&& !(ago !== null && ago >= 3)) return false;
-      if (fb === 'sem_mov' && !sm) return false;
+      var state = bankStatus(e).state;
+      if (fb === 'ok'       && state !== 'ok') return false;
+      if (fb === 'atencao'  && state !== 'warning') return false;
+      if (fb === 'atrasado' && state !== 'late') return false;
+      if (fb === 'sem_mov'  && state !== 'inactive') return false;
+      if (fb === 'sem_data' && state !== 'none') return false;
     }
     return true;
   }).sort(function(a,b) {
@@ -2685,10 +2691,11 @@ function renderTable() {
   body.innerHTML = rows.map(function(e) {
     var bs = bankStatus(e);
     var ap = aplicLabel(e);
+    var fe = competenceStatus(e, 'fechamento');
     var contact = (e.whatsapp || e.email) ? (e.whatsapp || e.email).slice(0,20) : '—';
     var isSel = selectedIds.has(e.id);
-    var ymBanco = e.mesAnoBanco || dateToYM(e.ultimoBanco) || '';
-    var ymAplic = e.mesAnoAplic || dateToYM(e.ultimaAplicacao) || '';
+    var ymBanco = getCompetence(e, 'banco');
+    var ymAplic = getCompetence(e, 'aplic');
     var ymFech  = e.mesAnoFechamento || '';
     var hasNote = e.anotacoes && e.anotacoes.trim();
 
@@ -2699,7 +2706,7 @@ function renderTable() {
           '<span class="badge ' + bs.cls + '" style="cursor:pointer;" onclick="openInlineMonth(event,\'' + e.id + '\',\'banco\')" title="Clique para editar">' +
             (ymBanco ? fmtMonth(ymBanco) : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>') +
           '</span>' +
-          (bs.months !== null && bs.months > 1 ? '<span style="font-size:9px;color:' + bs.color + ';font-weight:700;">' + bs.label + '</span>' : '') +
+          (bs.state === 'warning' || bs.state === 'late' ? '<span style="font-size:9px;color:' + bs.color + ';font-weight:700;">' + bs.label + '</span>' : '') +
         '</div>';
 
     var aplicCell = ymAplic
@@ -2707,7 +2714,8 @@ function renderTable() {
       : '<span style="color:var(--text3);font-size:11px;cursor:pointer;" onclick="openInlineMonth(event,\'' + e.id + '\',\'aplic\')">—</span>';
 
     var fechCell = ymFech
-      ? '<span class="badge badge-blue" style="cursor:pointer;" onclick="openInlineMonth(event,\'' + e.id + '\',\'fechamento\')">' + fmtMonth(ymFech) + '</span>'
+      ? '<div style="display:flex;align-items:center;gap:6px;"><span class="badge ' + fe.cls + '" style="cursor:pointer;" onclick="openInlineMonth(event,\'' + e.id + '\',\'fechamento\')">' + fmtMonth(ymFech) + '</span>' +
+        (fe.state === 'warning' || fe.state === 'late' ? '<span style="font-size:9px;color:' + fe.color + ';font-weight:700;">' + fe.label + '</span>' : '') + '</div>'
       : '<span style="color:var(--text3);font-size:11px;cursor:pointer;" onclick="openInlineMonth(event,\'' + e.id + '\',\'fechamento\')">—</span>';
 
     return '<tr class="' + (isSel ? 'selected' : '') + '">' +
@@ -2782,6 +2790,7 @@ function closeModalOutside(ev) { if (ev.target === document.getElementById('moda
 function saveEmpresa() {
   var nome = document.getElementById('f-nome').value.trim();
   if (!nome) { toast('Informe o nome da empresa', 'error'); return; }
+  var wasEditing = !!editingId;
   var data = {};
   FORM_FIELDS.forEach(function(f) { var el = document.getElementById('f-' + f); if (el) data[f] = el.value; });
   var decls = {};
@@ -2798,26 +2807,27 @@ function saveEmpresa() {
   } else {
     empresas.push(Object.assign({id:uid(), tasks:[]}, data));
   }
-  save(); closeModal(); renderTable(); refreshGrupoFilter();
+  save(); closeModal(); refreshCoreViews();
   if (currentDetailId) openDetail(currentDetailId);
-  toast(editingId ? 'Empresa atualizada!' : 'Empresa adicionada!');
+  toast(wasEditing ? 'Empresa atualizada!' : 'Empresa adicionada!');
 }
 
 function deleteEmpresa(id) {
   if (!confirm('Excluir esta empresa?')) return;
   empresas = empresas.filter(function(e) { return e.id !== id; });
-  save(); renderTable(); toast('Empresa removida.', 'error');
+  save(); refreshCoreViews(); toast('Empresa removida.', 'error');
   if (currentDetailId === id) closeDetail();
 }
 
 // ===================== DETAIL =====================
 function mkMonthCard(titulo, ym, cls, label, color, eid, field) {
   var ago = monthsAgo(ym);
-  var agoStr = ago === null ? '' : ago === 0 ? 'mês atual' : ago === 1 ? 'mês anterior' : ago + ' meses atrás';
+  var agoStr = ago === null ? '' : ago === 0 ? 'mês atual' : ago === 1 ? 'mês anterior' : 'há ' + ago + ' meses';
   return '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;" onclick="openInlineMonthById(\'' + eid + '\',\'' + field + '\')">' +
     '<div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">' + titulo + '</div>' +
     '<div style="font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.02em;">' + (ym ? fmtMonth(ym) : '—') + '</div>' +
-    (agoStr ? '<div style="font-size:10px;color:' + (color||'var(--text3)') + ';margin-top:3px;">' + agoStr + '</div>' : '') +
+    (label ? '<div style="font-size:10px;color:' + (color||'var(--text3)') + ';font-weight:700;margin-top:3px;">' + label + '</div>' : '') +
+    (agoStr ? '<div style="font-size:9px;color:var(--text3);margin-top:2px;">' + agoStr + '</div>' : '') +
     '<div style="font-size:10px;color:var(--text3);margin-top:4px;">Clique para editar</div>' +
   '</div>';
 }
@@ -2849,17 +2859,13 @@ function saveAnotacoes(id) {
 function quickSetMonth(id, field) {
   var e = empresas.find(function(x){ return x.id === id; });
   if (!e) return;
-  var now = new Date();
-  var targetMonth = field === 'banco' || field === 'aplic'
-    ? new Date(now.getFullYear(), now.getMonth() - 1, 1)  // mês anterior
-    : now; // fechamento = mês atual
-  var ym = targetMonth.getFullYear() + '-' + String(targetMonth.getMonth() + 1).padStart(2, '0');
+  var ym = expectedCompetenceYM();
   var fieldMap = {banco:'mesAnoBanco', aplic:'mesAnoAplic', fechamento:'mesAnoFechamento'};
   e[fieldMap[field]] = ym;
   e.lastModified = new Date().toISOString();
   save();
   openDetail(id);
-  renderTable();
+  refreshCoreViews();
   addAuditLog('edit', 'Mês ' + field + ' → ' + fmtMonth(ym) + ' — ' + e.nome.slice(0,25));
   toast(e.nome.slice(0,20) + ' — ' + {banco:'Banco',aplic:'Aplicação',fechamento:'Fechamento'}[field] + ': ' + fmtMonth(ym), 'success');
 }
@@ -2877,8 +2883,8 @@ function openDetail(id) {
   document.getElementById('dp-cnpj').textContent = (e.cnpj || '') + (e.questor ? ' · Questor: ' + e.questor : '');
 
   var bs = bankStatus(e);
-  var days = daysSince(e.ultimoBanco);
   var ap = aplicLabel(e);
+  var fe = competenceStatus(e, 'fechamento');
   var tasks = e.tasks || [];
   var done = tasks.filter(function(t) { return t.done; }).length;
   var pct = tasks.length ? Math.round(done / tasks.length * 100) : 0;
@@ -2916,21 +2922,21 @@ function openDetail(id) {
   if (e.obs) tabGeral += '<div class="detail-section"><h3>Observações</h3><div class="notes-box">' + e.obs + '</div></div>';
   tabGeral += '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
     '<button class="btn btn-primary" style="flex:1" onclick="bancoHoje(\'' + id + '\')">' +
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/></svg>Banco hoje' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/></svg>Banco: mês anterior' +
     '</button>' +
     '<button class="btn btn-ghost" style="flex:1" onclick="openModal(\'' + id + '\')">Editar</button>' +
     '<button class="btn btn-danger btn-sm" onclick="deleteEmpresa(\'' + id + '\')">Excluir</button>' +
   '</div>';
 
   // --- TAB: BANCO ---
-  var ymBancoD = e.mesAnoBanco || dateToYM(e.ultimoBanco) || '';
-  var ymAplicD = e.mesAnoAplic || dateToYM(e.ultimaAplicacao) || '';
+  var ymBancoD = getCompetence(e, 'banco');
+  var ymAplicD = getCompetence(e, 'aplic');
   var ymFechD  = e.mesAnoFechamento || '';
   var tabBanco = '<div class="detail-section"><h3>Lançamentos Mensais</h3>' +
     '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">' +
       mkMonthCard('Banco', ymBancoD, bs.cls, bs.label, bs.color, id, 'banco') +
       mkMonthCard('Aplicação', ymAplicD, ap.cls, ap.label, null, id, 'aplic') +
-      mkMonthCard('Fechamento', ymFechD, 'badge-blue', ymFechD ? fmtMonth(ymFechD) : '—', null, id, 'fechamento') +
+      mkMonthCard('Fechamento', ymFechD, fe.cls, fe.label, fe.color, id, 'fechamento') +
     '</div>' +
   '</div>' +
   '<div class="detail-section"><h3>Detalhes Bancários</h3><div class="info-grid">' +
@@ -3049,95 +3055,43 @@ function closeDetail() {
 
 // ===================== BANKS =====================
 function renderBanks() {
+  var severity = {late:5, warning:4, none:3, ok:2, inactive:1};
   var sorted = empresas.slice().sort(function(a,b) {
-    var da = a.statusBanco === 'sem_movimento' ? -1 : (daysSince(a.ultimoBanco) || 0);
-    var db = b.statusBanco === 'sem_movimento' ? -1 : (daysSince(b.ultimoBanco) || 0);
-    return db - da;
+    var sa = bankStatus(a), sb = bankStatus(b);
+    return (severity[sb.state] - severity[sa.state]) || ((sb.overdueMonths || 0) - (sa.overdueMonths || 0)) || a.nome.localeCompare(b.nome);
   });
   var body = document.getElementById('bank-table-body');
+  if (!body) return;
   body.innerHTML = sorted.map(function(e) {
     var bs = bankStatus(e);
-    var days = daysSince(e.ultimoBanco);
-    var dStr = (e.statusBanco === 'sem_movimento') ? 'S/M' : (days !== null ? days + 'd' : '—');
-    var dColor = (days > 30) ? 'var(--red)' : (days > 7 ? 'var(--yellow)' : 'var(--green)');
+    var pending = bs.state === 'ok' ? 'Nenhuma' : bs.label;
+    var competence = bs.ym ? fmtMonth(bs.ym) : '—';
+    var quickAction = bs.state === 'inactive' ? '' :
+      '<button class="btn btn-ghost btn-sm" onclick="bancoHoje(\'' + e.id + '\')" title="Registrar a competência esperada">Mês anterior</button>';
     return '<tr>' +
       '<td><div class="company-name">' + e.nome + '</div><div class="company-cnpj">' + (e.cnpj||'') + '</div></td>' +
       '<td style="font-size:11px;color:var(--text2);">' + (e.bancos||'—') + '</td>' +
-      '<td>' + (e.statusBanco === 'sem_movimento' ? 'Sem Movimento' : formatDate(e.ultimoBanco)) + '</td>' +
-      '<td style="color:' + (e.statusBanco !== 'sem_movimento' ? dColor : 'var(--text3)') + ';font-weight:600;">' + dStr + '</td>' +
+      '<td><span class="badge ' + bs.cls + '" style="cursor:pointer" onclick="openInlineMonth(event,\'' + e.id + '\',\'banco\')">' + competence + '</span></td>' +
+      '<td style="font-size:11px;color:' + bs.color + ';font-weight:600;">' + pending + '</td>' +
       '<td><span class="badge ' + bs.cls + '">' + bs.label + '</span></td>' +
-      '<td style="font-size:11px;color:var(--text2);">' + (e.whatsapp || e.email || '—') + '</td>' +
-      '<td style="font-size:11px;color:' + (e.obs ? 'var(--yellow)' : 'var(--text3)') + ';">' + (e.obs||'').slice(0,30) + '</td>' +
-      '<td><button class="icon-btn" onclick="openModal(\'' + e.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></td>' +
+      '<td><div class="row-actions">' + quickAction +
+        '<button class="icon-btn" onclick="openDetail(\'' + e.id + '\')" title="Abrir empresa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>' +
+        '<button class="icon-btn" onclick="openModal(\'' + e.id + '\')" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>' +
+      '</div></td>' +
     '</tr>';
   }).join('');
-
-  var tl = document.getElementById('bank-timeline');
-  tl.innerHTML = sorted.map(function(e) {
-    var bs = bankStatus(e);
-    var days = daysSince(e.ultimoBanco);
-    return '<div style="display:flex;align-items:center;gap:12px;padding:8px 14px;border-radius:8px;background:var(--surface);border:1px solid var(--border);font-size:12px;">' +
-      '<div style="width:9px;height:9px;border-radius:50%;background:' + (bs.color || 'var(--text3)') + ';flex-shrink:0;"></div>' +
-      '<span style="flex:1;font-weight:500;">' + e.nome + '</span>' +
-      '<span style="color:var(--text3);">' + (e.statusBanco === 'sem_movimento' ? 'Sem Movimento' : formatDate(e.ultimoBanco)) + '</span>' +
-      '<span class="badge ' + bs.cls + '">' + (days !== null && e.statusBanco !== 'sem_movimento' ? days + 'd' : bs.label) + '</span>' +
-    '</div>';
-  }).join('');
-}
-
-function setBankTab(tab, el) {
-  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
-  el.classList.add('active');
-  document.getElementById('bank-tab-resumo').style.display = (tab === 'resumo') ? '' : 'none';
-  document.getElementById('bank-tab-timeline').style.display = (tab === 'timeline') ? '' : 'none';
 }
 
 // ===================== DECLARAÇÕES =====================
-function renderDeclaracoes() {
-  var rf = document.getElementById('decl-filter-regime') ? document.getElementById('decl-filter-regime').value : '';
-  var list = rf ? empresas.filter(function(e) { return e.regime === rf; }) : empresas;
-  list = list.slice().sort(function(a,b) { return a.nome.localeCompare(b.nome); });
-
-  var html = '<table><thead><tr><th style="position:sticky;left:0;background:var(--surface2);min-width:200px;">Empresa</th>';
-  DECL_LIST.forEach(function(d) { html += '<th>' + d.nome + '</th>'; });
-  html += '</tr></thead><tbody>';
-
-  list.forEach(function(e) {
-    var decls = e.declaracoes || {};
-    html += '<tr><td style="position:sticky;left:0;background:var(--surface);font-weight:500;font-size:12px;cursor:pointer;" onclick="openDetail(\'' + e.id + '\')">' +
-      e.nome.slice(0,30) + (e.nome.length > 30 ? '…' : '') +
-      '<div style="font-size:10px;color:var(--text3);">' + (e.regime||'') + '</div></td>';
-    DECL_LIST.forEach(function(d) {
-      var ds = decls[d.id] || {status:'na'};
-      var lbl = DECL_STATUS_LABEL[ds.status] || '-';
-      var cls = DECL_STATUS_CLASS[ds.status] || 'dm-na';
-      html += '<td style="text-align:center;"><span class="dm-status ' + cls + '" onclick="cycleDecl(\'' + e.id + '\',\'' + d.id + '\')" title="' + d.nome + '">' + lbl + '</span></td>';
-    });
-    html += '</tr>';
-  });
-
-  html += '</tbody></table>';
-  document.getElementById('decl-matrix').innerHTML = html;
-}
-
-function cycleDecl(eid, did) {
-  var e = empresas.find(function(x) { return x.id === eid; });
-  if (!e) return;
-  if (!e.declaracoes) e.declaracoes = {};
-  var cur = (e.declaracoes[did] && e.declaracoes[did].status) || 'na';
-  var idx = DECL_STATUS_CYCLE.indexOf(cur);
-  var next = DECL_STATUS_CYCLE[(idx + 1) % DECL_STATUS_CYCLE.length];
-  e.declaracoes[did] = Object.assign({}, e.declaracoes[did] || {}, {status: next});
-  save(); renderDeclaracoes();
-}
-
 // ===================== RELATÓRIOS =====================
 function renderRelatorio() {
   var total = empresas.length;
   var altas = empresas.filter(function(e) { return e.prioridade === 'alta'; }).length;
-  var bankOk = empresas.filter(function(e) { var d = daysSince(e.ultimoBanco); return d !== null && d <= 7; }).length;
-  var bankLate = empresas.filter(function(e) { var d = daysSince(e.ultimoBanco); return d !== null && d > 30; }).length;
-  var semMov = empresas.filter(function(e) { return e.statusBanco === 'sem_movimento'; }).length;
+  var bankOk = empresas.filter(function(e) { return bankStatus(e).state === 'ok'; }).length;
+  var bankWarning = empresas.filter(function(e) { return bankStatus(e).state === 'warning'; }).length;
+  var bankLate = empresas.filter(function(e) { return bankStatus(e).state === 'late'; }).length;
+  var semMov = empresas.filter(function(e) { return bankStatus(e).state === 'inactive'; }).length;
+  var semCompetencia = empresas.filter(function(e) { return bankStatus(e).state === 'none'; }).length;
   var regimes = {};
   empresas.forEach(function(e) { var k = e.regime || 'Não informado'; regimes[k] = (regimes[k] || 0) + 1; });
   var tipos = {};
@@ -3148,33 +3102,18 @@ function renderRelatorio() {
     '<div class="report-card"><h3>Resumo</h3>' +
       '<div class="report-row"><span>Total empresas</span><span style="font-weight:700;">' + total + '</span></div>' +
       '<div class="report-row"><span>Alta prioridade</span><span style="color:var(--red);font-weight:700;">' + altas + '</span></div>' +
-      '<div class="report-row"><span>Bancos OK (≤7 dias)</span><span style="color:var(--green);font-weight:700;">' + bankOk + '</span></div>' +
-      '<div class="report-row"><span>Bancos atrasados (&gt;30d)</span><span style="color:var(--red);font-weight:700;">' + bankLate + '</span></div>' +
+      '<div class="report-row"><span>Bancos em dia (até ' + fmtMonth(expectedCompetenceYM()) + ')</span><span style="color:var(--green);font-weight:700;">' + bankOk + '</span></div>' +
+      '<div class="report-row"><span>Atenção (1 competência pendente)</span><span style="color:var(--yellow);font-weight:700;">' + bankWarning + '</span></div>' +
+      '<div class="report-row"><span>Atrasados (2+ competências)</span><span style="color:var(--red);font-weight:700;">' + bankLate + '</span></div>' +
       '<div class="report-row"><span>Sem Movimento</span><span style="color:var(--text3);font-weight:700;">' + semMov + '</span></div>' +
+      '<div class="report-row"><span>Sem competência definida</span><span style="color:var(--text3);font-weight:700;">' + semCompetencia + '</span></div>' +
     '</div>' +
     '<div class="report-card"><h3>Por Regime</h3>' + Object.entries(regimes).map(function(x) { return '<div class="report-row"><span>' + x[0] + '</span><span style="font-weight:700;">' + x[1] + '</span></div>'; }).join('') + '</div>' +
     '<div class="report-card"><h3>Por Tipo</h3>' + Object.entries(tipos).map(function(x) { return '<div class="report-row"><span>' + x[0] + '</span><span style="font-weight:700;">' + x[1] + '</span></div>'; }).join('') + '</div>' +
     '<div class="report-card"><h3>Pendências (' + pendTasks.length + ')</h3>' +
       (pendTasks.slice(0,8).map(function(t) { return '<div class="report-row"><span>' + t.empresa.slice(0,22) + '</span><span style="font-size:11px;color:var(--text2);">' + t.task.slice(0,25) + '</span></div>'; }).join('') || '<div style="color:var(--text3);font-size:12px;padding:8px 0;">Nenhuma pendência</div>') +
-    '</div></div>';
-
-  html += '<div class="section-label" style="margin-bottom:14px;">Detalhamento Completo</div>';
-  html += '<div class="table-wrap"><table><thead><tr><th>Empresa</th><th>CNPJ</th><th>Questor</th><th>Regime</th><th>Tipo</th><th>Prioridade</th><th>Último Banco</th><th>Status Banco</th><th>Contato</th></tr></thead><tbody>';
-  empresas.slice().sort(function(a,b){return a.nome.localeCompare(b.nome);}).forEach(function(e) {
-    var bs = bankStatus(e);
-    html += '<tr>' +
-      '<td style="font-weight:500;font-size:12px;">' + e.nome + '</td>' +
-      '<td style="font-size:11px;font-family:monospace;color:var(--text3);">' + (e.cnpj||'—') + '</td>' +
-      '<td style="font-size:11px;color:var(--text3);">' + (e.questor||'—') + '</td>' +
-      '<td style="font-size:11px;">' + (e.regime||'—') + '</td>' +
-      '<td style="font-size:11px;">' + (e.tipo||'—') + '</td>' +
-      '<td><span class="badge ' + prioClass(e.prioridade) + '">' + prioLabel(e.prioridade) + '</span></td>' +
-      '<td style="font-size:11px;">' + (e.statusBanco === 'sem_movimento' ? 'S/M' : formatDate(e.ultimoBanco)) + '</td>' +
-      '<td><span class="badge ' + bs.cls + '">' + bs.label + '</span></td>' +
-      '<td style="font-size:11px;color:var(--text2);">' + (e.whatsapp || e.email || '—') + '</td>' +
-    '</tr>';
-  });
-  html += '</tbody></table></div>';
+    '</div></div>' +
+    '<div class="b3-info-box">O relatório mostra apenas consolidações. O cadastro detalhado permanece na página Empresas e o acompanhamento operacional na página Bancos, evitando repetir a mesma tabela em várias telas.</div>';
   document.getElementById('relatorio-content').innerHTML = html;
 }
 
@@ -3192,10 +3131,10 @@ document.addEventListener('click', function(ev) {
 
 function exportCSV() {
   var rows = getFiltered();
-  var hdr = ['Nome','CNPJ','Questor','Tipo','Regime','Prioridade','Email','WhatsApp','Último Banco','Status Banco','Aplicação','Status Aplic','Observações'];
+  var hdr = ['Nome','CNPJ','Questor','Tipo','Regime','Prioridade','Email','WhatsApp','Competência Banco','Situação Banco','Competência Aplicação','Situação Aplicação','Competência Fechamento','Observações'];
   var lines = [hdr.join(';')];
   rows.forEach(function(e) {
-    lines.push([e.nome,e.cnpj,e.questor,e.tipo,e.regime,e.prioridade,e.email,e.whatsapp,e.ultimoBanco,e.statusBanco,e.ultimaAplicacao,e.statusAplic,(e.obs||'').replace(/\n/g,' ')].map(function(v){return '"'+(v||'')+'"';}).join(';'));
+    lines.push([e.nome,e.cnpj,e.questor,e.tipo,e.regime,e.prioridade,e.email,e.whatsapp,getCompetence(e,'banco'),bankStatus(e).label,getCompetence(e,'aplic'),competenceStatus(e,'aplic').label,getCompetence(e,'fechamento'),(e.obs||'').replace(/\n/g,' ')].map(function(v){return '"'+String(v||'').replace(/"/g,'""')+'"';}).join(';'));
   });
   var blob = new Blob(['﻿'+lines.join('\n')], {type:'text/csv;charset=utf-8'});
   var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'empresas_' + new Date().toISOString().split('T')[0] + '.csv'; a.click();
@@ -3212,15 +3151,11 @@ function exportJSON() {
 function bancoHoje(id) {
   var e = empresas.find(function(x) { return x.id === id; });
   if (!e) return;
-  // Define o mês anterior como mês lançado (regra contábil)
-  var now = new Date();
-  var prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  var ym = prevMonth.getFullYear() + '-' + String(prevMonth.getMonth() + 1).padStart(2, '0');
+  var ym = expectedCompetenceYM();
   e.mesAnoBanco = ym;
-  e.ultimoBanco = now.toISOString().split('T')[0];
   e.statusBanco = '';
   e.lastModified = new Date().toISOString();
-  save(); renderTable(); updateNotifBadge();
+  save(); refreshCoreViews();
   if (currentDetailId === id) openDetail(id);
   addAuditLog('edit', 'Banco atualizado → ' + fmtMonth(ym) + ' — ' + e.nome.slice(0,25));
   toast(e.nome.slice(0,25) + ' — Banco: ' + fmtMonth(ym));
@@ -3254,14 +3189,14 @@ function updateBulkBar() {
 }
 
 function bulkBancoHoje() {
-  var today = new Date().toISOString().split('T')[0];
+  var ym = expectedCompetenceYM();
   var n = 0;
   selectedIds.forEach(function(id) {
     var e = empresas.find(function(x) { return x.id === id; });
-    if (e) { e.ultimoBanco = today; e.statusBanco = ''; e.lastModified = new Date().toISOString(); n++; }
+    if (e) { e.mesAnoBanco = ym; e.statusBanco = ''; e.lastModified = new Date().toISOString(); n++; }
   });
-  save(); selectedIds.clear(); renderTable();
-  toast(n + ' empresa(s) — banco atualizado para hoje!');
+  save(); selectedIds.clear(); refreshCoreViews();
+  toast(n + ' empresa(s) — banco atualizado para ' + fmtMonth(ym) + '!');
 }
 
 function bulkSetPrio(prio) {
@@ -3270,7 +3205,7 @@ function bulkSetPrio(prio) {
     var e = empresas.find(function(x) { return x.id === id; });
     if (e) { e.prioridade = prio; e.lastModified = new Date().toISOString(); n++; }
   });
-  save(); selectedIds.clear(); renderTable();
+  save(); selectedIds.clear(); refreshCoreViews();
   toast(n + ' empresa(s) com prioridade ' + prioLabel(prio) + '.');
 }
 
@@ -3645,13 +3580,13 @@ document.addEventListener('keydown', function(ev) {
 function buildNotifs() {
   var notifs = [];
   empresas.forEach(function(e) {
-    if (e.statusBanco === 'sem_movimento') return;
-    var ym = e.mesAnoBanco || dateToYM(e.ultimoBanco);
-    var ago = monthsAgo(ym);
-    if (ago !== null && ago >= 3)
-      notifs.push({color:'var(--red)', title: e.nome, text: 'Banco com ' + ago + ' meses de atraso (' + fmtMonth(ym) + ')', id: e.id});
-    else if (ago !== null && ago === 2)
-      notifs.push({color:'var(--yellow)', title: e.nome, text: 'Banco em atenção — lançado ' + fmtMonth(ym), id: e.id});
+    var s = bankStatus(e);
+    if (s.state === 'late')
+      notifs.push({color:'var(--red)', title: e.nome, text: s.label + ' — última competência ' + fmtMonth(s.ym), id: e.id});
+    else if (s.state === 'warning')
+      notifs.push({color:'var(--yellow)', title: e.nome, text: s.label + ' — última competência ' + fmtMonth(s.ym), id: e.id});
+    else if (s.state === 'none')
+      notifs.push({color:'var(--text3)', title: e.nome, text: 'Banco sem competência definida', id: e.id});
   });
   empresas.forEach(function(e) {
     var d = e.declaracoes || {};
@@ -4999,6 +4934,10 @@ function updateTasksBadge() {
 // ===================== INIT =====================
 initTheme();
 migrateData();
+['f-mesAnoBanco','f-mesAnoAplic','f-mesAnoFechamento'].forEach(function(id) {
+  var input = document.getElementById(id);
+  if (input) input.max = monthYM(0);
+});
 hookConvPDF();
 hookConvProcess();
 checkAuth();
