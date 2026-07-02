@@ -112,7 +112,7 @@
   .btn-danger:hover { background: rgba(239,68,68,.22); border-color: rgba(239,68,68,.5); }
   .btn-sm { padding: 5px 10px; font-size: 12px; }
 
-  .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 24px; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 24px; }
   .stat-card {
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
     padding: 18px 18px 16px; position: relative; overflow: hidden;
@@ -341,11 +341,11 @@
 
   /* REINF PAGE */
   .reinf-wrap { overflow-x: auto; }
-  .reinf-wrap table { min-width: 100%; border-collapse: collapse; }
+  .reinf-wrap table { min-width: 980px; width: 100%; border-collapse: collapse; }
   .reinf-wrap th { padding: 9px 10px; text-align: center; font-size: 9px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; background: var(--surface2); }
-  .reinf-wrap th.empresa-col { text-align: left; min-width: 200px; position: sticky; left: 0; background: var(--surface2); z-index: 2; }
+  .reinf-wrap th.empresa-col { text-align: left; min-width: 230px; position: sticky; left: 0; background: var(--surface2); z-index: 2; }
   .reinf-wrap td { padding: 8px 10px; border-top: 1px solid rgba(37,42,61,.7); text-align: center; vertical-align: middle; }
-  .reinf-wrap td.empresa-col { text-align: left; font-size: 12px; font-weight: 500; color: var(--text); position: sticky; left: 0; background: var(--surface); z-index: 1; min-width: 200px; cursor: pointer; }
+  .reinf-wrap td.empresa-col { text-align: left; font-size: 12px; font-weight: 500; color: var(--text); position: sticky; left: 0; background: var(--surface); z-index: 1; min-width: 230px; cursor: pointer; }
   .reinf-wrap td.empresa-col:hover { color: var(--accent2); }
   .reinf-wrap tr:hover td { background: rgba(99,102,241,.04); }
   .reinf-wrap tr:hover td.empresa-col { background: rgba(99,102,241,.06); }
@@ -357,10 +357,31 @@
   .reinf-na { background: rgba(100,116,139,.08); color: var(--text3); }
   .reinf-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
   .reinf-legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text2); }
-  .reinf-summary { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 18px; }
+  .reinf-summary { display: grid; grid-template-columns: repeat(auto-fit,minmax(155px,1fr)); gap: 12px; margin-bottom: 18px; }
   .reinf-kpi { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
   .reinf-kpi-label { font-size: 10px; color: var(--text3); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
   .reinf-kpi-val { font-size: 24px; font-weight: 800; margin-top: 4px; letter-spacing: -.02em; }
+  .reinf-period-note { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; margin-bottom:14px; background:rgba(99,102,241,.08); border:1px solid rgba(99,102,241,.22); border-radius:var(--radius); }
+  .reinf-period-title { font-size:13px; font-weight:700; color:var(--text); }
+  .reinf-period-sub { font-size:11px; color:var(--text3); margin-top:2px; }
+  .reinf-period-nav { display:flex; align-items:center; gap:6px; }
+  .reinf-nav-btn { width:32px; height:32px; padding:0; justify-content:center; }
+  .reinf-nav-btn:disabled { opacity:.35; cursor:not-allowed; }
+  .reinf-status-select { width:126px; border:1px solid var(--border); border-radius:7px; padding:7px 9px; font-size:11px; font-weight:700; outline:none; cursor:pointer; background:var(--surface2); color:var(--text2); }
+  .reinf-status-select.entregue { color:var(--green); border-color:rgba(34,197,94,.35); background:rgba(34,197,94,.10); }
+  .reinf-status-select.pendente { color:var(--yellow); border-color:rgba(245,158,11,.35); background:rgba(245,158,11,.10); }
+  .reinf-status-select.atrasado { color:var(--red); border-color:rgba(239,68,68,.35); background:rgba(239,68,68,.10); }
+  .reinf-status-select.na { color:var(--text3); }
+  .reinf-money-input, .reinf-note-input { width:100%; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:7px; padding:7px 9px; font-size:12px; outline:none; }
+  .reinf-money-input { min-width:125px; text-align:right; font-variant-numeric:tabular-nums; }
+  .reinf-note-input { min-width:210px; }
+  .reinf-money-input:focus, .reinf-note-input:focus { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-glow); }
+  .important-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 20px; }
+  .important-item { display:flex; align-items:flex-start; gap:9px; padding:9px 0; border-bottom:1px solid rgba(37,42,61,.5); cursor:pointer; }
+  .important-item:hover .important-name { color:var(--accent2); }
+  .important-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+  .important-name { font-size:12px; font-weight:600; color:var(--text); transition:color .15s; }
+  .important-reasons { font-size:10px; color:var(--text3); margin-top:2px; line-height:1.45; }
 
   /* DECL PAGE (legacy - hidden) */
   .decl-matrix { overflow-x: auto; }
@@ -389,6 +410,8 @@
     .main { margin-left: 56px; }
     .stats { grid-template-columns: 1fr 1fr; }
     .detail-panel { width: 100%; }
+    .important-grid { grid-template-columns:1fr; }
+    .reinf-period-note { align-items:flex-start; flex-direction:column; }
   }
 
   /* BANCO HOJE */
@@ -1164,7 +1187,13 @@
         </div>
       </div>
 
-      <!-- Row 5: lists + activity -->
+      <!-- Row 5: consolidated attention queue -->
+      <div class="dash-card" style="margin-bottom:18px;border-color:rgba(245,158,11,.28);">
+        <div class="dash-card-title">Pendências importantes <span id="important-pending-count"></span></div>
+        <div class="important-grid" id="important-pending"></div>
+      </div>
+
+      <!-- Row 6: lists + activity -->
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;">
         <div class="dash-card">
           <div class="dash-card-title">Bancos Pendentes</div>
@@ -1317,7 +1346,9 @@
     <div class="topbar">
       <div class="topbar-left"><h1>ReINF Mensal</h1></div>
       <div class="topbar-actions">
-        <select class="filter-select" id="reinf-ano" onchange="renderReinf()"></select>
+        <button class="btn btn-ghost reinf-nav-btn" id="reinf-prev-btn" onclick="changeReinfMonth(-1)" title="Competência anterior">←</button>
+        <select class="filter-select" id="reinf-competencia" onchange="renderReinf()"></select>
+        <button class="btn btn-ghost reinf-nav-btn" id="reinf-next-btn" onclick="changeReinfMonth(1)" title="Competência seguinte">→</button>
         <select class="filter-select" id="reinf-filter-regime" onchange="renderReinf()">
           <option value="">Todos regimes</option>
           <option>Simples Nacional</option>
@@ -1332,14 +1363,14 @@
       </div>
     </div>
     <div class="content">
-      <div class="reinf-summary" id="reinf-kpis"></div>
-      <div class="reinf-legend">
-        <div class="reinf-legend-item"><div class="reinf-cell reinf-entregue" style="width:20px;height:20px;font-size:9px;">E</div> Entregue</div>
-        <div class="reinf-legend-item"><div class="reinf-cell reinf-pendente" style="width:20px;height:20px;font-size:9px;">P</div> Pendente</div>
-        <div class="reinf-legend-item"><div class="reinf-cell reinf-atrasado" style="width:20px;height:20px;font-size:9px;">A</div> Atrasado</div>
-        <div class="reinf-legend-item"><div class="reinf-cell reinf-na" style="width:20px;height:20px;font-size:9px;">—</div> N/A</div>
-        <div style="margin-left:auto;font-size:11px;color:var(--text3);">Clique em uma célula para alternar o status</div>
+      <div class="reinf-period-note">
+        <div>
+          <div class="reinf-period-title" id="reinf-period-title">Competência a entregar agora</div>
+          <div class="reinf-period-sub" id="reinf-period-sub">A competência enviada no mês atual corresponde ao mês anterior.</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="goToCurrentReinfMonth()">Ir para a competência a entregar agora</button>
       </div>
+      <div class="reinf-summary" id="reinf-kpis"></div>
       <div class="table-wrap reinf-wrap" id="reinf-matrix"></div>
     </div>
   </div>
@@ -2403,6 +2434,29 @@ function renderDashboard() {
   var atrasados = empresas.filter(function(e) { return bankStatus(e).state === 'late'; }).length;
   var ok = empresas.filter(function(e) { return bankStatus(e).state === 'ok'; }).length;
   var semMov = empresas.filter(function(e) { return e.statusBanco === 'sem_movimento'; }).length;
+  var dashNow = new Date();
+  var dashCompetencia = new Date(dashNow.getFullYear(), dashNow.getMonth() - 1, 1);
+  var dashAno = dashCompetencia.getFullYear();
+  var dashMes = dashCompetencia.getMonth();
+  var dashEntregaLabel = REINF_MESES[dashNow.getMonth()] + '/' + String(dashNow.getFullYear()).slice(2);
+  var dashCompetenciaLabel = REINF_MESES[dashMes] + '/' + String(dashAno).slice(2);
+  var dashReinf = getReinf();
+  var dashFinance = getReinfFinance();
+  var dashReinfTotal = 0, dashReinfDone = 0, dashReinfPending = 0;
+  var dashRetidos = 0, dashLucros = 0;
+  empresas.forEach(function(e) {
+    var dashKey = reinfRecordKey(e.id, dashAno, dashMes);
+    var dashStatus = dashReinf[dashKey] || 'pendente';
+    if (dashStatus !== 'na') {
+      dashReinfTotal++;
+      if (dashStatus === 'entregue') dashReinfDone++;
+      else dashReinfPending++;
+    }
+    var dashValues = dashFinance[dashKey] || {};
+    dashRetidos += Number(dashValues.retidos) || 0;
+    dashLucros += Number(dashValues.lucros) || 0;
+  });
+  var dashReinfPct = dashReinfTotal ? Math.round(dashReinfDone / dashReinfTotal * 100) : 0;
   var ic = {
     building: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
     check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>',
@@ -2437,12 +2491,21 @@ function renderDashboard() {
     statsEl.innerHTML += '<div class="stat-card" style="border-top:3px solid var(--blue);">' +
       '<div class="stat-label">Decl. Pendentes</div>' +
       '<div class="stat-value" style="color:var(--yellow)">' + declPendente + '</div>' +
-      '<div class="stat-sub" style="color:var(--red)">' + declAtrasado + ' atrasadas</div></div>';
+      '<div class="stat-sub" style="color:var(--red)">' + declAtrasado + ' atrasadas</div></div>' +
+      '<div class="stat-card blue"><div class="stat-label">ReINF a entregar</div>' +
+      '<div class="stat-value" style="color:var(--accent2)">' + dashReinfPct + '%</div>' +
+      '<div class="stat-sub">Competência ' + dashCompetenciaLabel + ' · entrega ' + dashEntregaLabel + ' · ' + dashReinfPending + ' pendentes</div></div>' +
+      '<div class="stat-card green"><div class="stat-label">Impostos retidos</div>' +
+      '<div class="stat-value" style="font-size:21px;color:var(--green)">' + fmtReinfCurrency(dashRetidos) + '</div>' +
+      '<div class="stat-sub">Competência ' + dashCompetenciaLabel + '</div></div>' +
+      '<div class="stat-card orange"><div class="stat-label">Lucros distribuídos</div>' +
+      '<div class="stat-value" style="font-size:21px;color:var(--orange)">' + fmtReinfCurrency(dashLucros) + '</div>' +
+      '<div class="stat-sub">Competência ' + dashCompetenciaLabel + '</div></div>';
   }
 
   // ---- ReINF bar chart ----
-  var ano = new Date().getFullYear();
-  var curMes = new Date().getMonth();
+  var ano = dashAno;
+  var curMes = dashMes;
   var reinf = getReinf();
   var barEl = document.getElementById('reinf-bar-chart');
   var barLblEl = document.getElementById('reinf-bar-labels');
@@ -2592,6 +2655,43 @@ function renderDashboard() {
   ].filter(function(s){ return s.value > 0; });
   var elAS = document.getElementById('chart-aplic-status');
   if (elAS) elAS.innerHTML = buildDonutWithLegend(aSegs, 'empresas');
+
+  // ---- Pendências importantes ----
+  var importantEl = document.getElementById('important-pending');
+  var importantCountEl = document.getElementById('important-pending-count');
+  if (importantEl) {
+    var importantNow = new Date(); importantNow.setHours(0,0,0,0);
+    var importantItems = [];
+    empresas.forEach(function(e) {
+      var reasons = [], score = 0, color = 'var(--yellow)';
+      var reinfKey = reinfRecordKey(e.id, dashAno, dashMes);
+      var reinfStatus = dashReinf[reinfKey] || 'pendente';
+      if (reinfStatus === 'atrasado') { reasons.push('ReINF ' + dashCompetenciaLabel + ' atrasada'); score += 100; color = 'var(--red)'; }
+      else if (reinfStatus === 'pendente' && dashNow.getDate() > 15) { reasons.push('ReINF ' + dashCompetenciaLabel + ' pendente'); score += 65; color = 'var(--red)'; }
+
+      var bs = bankStatus(e);
+      if (bs.state === 'late') { reasons.push('banco atrasado'); score += 85; color = 'var(--red)'; }
+      else if (bs.state === 'warning') { reasons.push('banco requer atenção'); score += 40; }
+
+      var overdueTasks = (e.tasks || []).filter(function(t) {
+        return !t.done && t.dueDate && new Date(t.dueDate + 'T00:00:00') < importantNow;
+      }).length;
+      if (overdueTasks) { reasons.push(overdueTasks + (overdueTasks === 1 ? ' tarefa vencida' : ' tarefas vencidas')); score += 90 + overdueTasks; color = 'var(--red)'; }
+      if (e.prioridade === 'alta') { reasons.push('prioridade alta'); score += 35; }
+
+      if (reasons.length) importantItems.push({empresa:e, reasons:reasons, score:score, color:color});
+    });
+    importantItems.sort(function(a,b){ return b.score - a.score || a.empresa.nome.localeCompare(b.empresa.nome); });
+    var visibleImportant = importantItems.slice(0, 10);
+    if (importantCountEl) importantCountEl.textContent = importantItems.length + (importantItems.length === 1 ? ' empresa' : ' empresas');
+    importantEl.innerHTML = visibleImportant.length ? visibleImportant.map(function(item) {
+      var e = item.empresa;
+      return '<div class="important-item" onclick="openDetail(\'' + e.id + '\')">' +
+        '<div class="important-dot" style="background:' + item.color + ';box-shadow:0 0 5px ' + item.color + '"></div>' +
+        '<div><div class="important-name">' + reinfEscape(e.nome) + '</div>' +
+        '<div class="important-reasons">' + item.reasons.map(reinfEscape).join(' • ') + '</div></div></div>';
+    }).join('') : '<div style="grid-column:1/-1;color:var(--text3);font-size:12px;padding:8px 0;">Nenhuma pendência crítica no momento.</div>';
+  }
 
   // ---- Activity feed ----
   var feedEl = document.getElementById('activity-feed');
@@ -3348,109 +3448,215 @@ function deleteUser(id) {
 
 // ===================== ReINF =====================
 var REINF_MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-var REINF_CYCLE = ['na','pendente','entregue','atrasado'];
+var REINF_MESES_LONGOS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 var REINF_KEY = 'cg_reinf';
+var REINF_FIN_KEY = 'cg_reinf_financeiro';
 
 function getReinf() { return JSON.parse(localStorage.getItem(REINF_KEY) || '{}'); }
 function saveReinf(d) { localStorage.setItem(REINF_KEY, JSON.stringify(d)); }
+function getReinfFinance() { return JSON.parse(localStorage.getItem(REINF_FIN_KEY) || '{}'); }
+function saveReinfFinance(d) { localStorage.setItem(REINF_FIN_KEY, JSON.stringify(d)); }
+function reinfRecordKey(eid, ano, mes) { return eid + '_' + ano + '_' + mes; }
 
-function initReinfAnoSelect() {
-  var sel = document.getElementById('reinf-ano');
+function reinfEscape(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, function(ch) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+  });
+}
+
+function fmtReinfCurrency(value) {
+  return Number(value || 0).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+}
+
+function fmtReinfInput(value) {
+  var n = Number(value) || 0;
+  return n ? n.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) : '';
+}
+
+function parseReinfMoney(value) {
+  var text = String(value == null ? '' : value).trim().replace(/R\$/gi, '').replace(/\s/g, '');
+  if (!text) return 0;
+  if (text.indexOf(',') >= 0) text = text.replace(/\./g, '').replace(',', '.');
+  text = text.replace(/[^0-9.-]/g, '');
+  var n = parseFloat(text);
+  return isFinite(n) ? Math.max(0, n) : 0;
+}
+
+function initReinfCompetenciaSelect() {
+  var sel = document.getElementById('reinf-competencia');
   if (!sel || sel.options.length > 0) return;
-  var cur = new Date().getFullYear();
-  for (var y = cur; y >= cur - 4; y--) {
+  var now = new Date();
+  for (var i = 0; i < 36; i++) {
+    var d = new Date(now.getFullYear(), now.getMonth() - 1 - i, 1);
+    var delivery = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+    var ym = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
     var o = document.createElement('option');
-    o.value = y; o.textContent = y;
+    o.value = ym;
+    o.textContent = 'Competência ' + REINF_MESES_LONGOS[d.getMonth()] + '/' + d.getFullYear() +
+      ' — entrega em ' + REINF_MESES_LONGOS[delivery.getMonth()] + '/' + delivery.getFullYear() +
+      (i === 0 ? ' — a entregar agora' : '');
     sel.appendChild(o);
   }
 }
 
+function getSelectedReinfPeriod() {
+  initReinfCompetenciaSelect();
+  var sel = document.getElementById('reinf-competencia');
+  var now = new Date();
+  var currentCompetence = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  var fallback = currentCompetence.getFullYear() + '-' + String(currentCompetence.getMonth() + 1).padStart(2, '0');
+  var parts = (sel && sel.value ? sel.value : fallback).split('-');
+  return {ano:parseInt(parts[0],10), mes:parseInt(parts[1],10)-1, ym:parts.join('-')};
+}
+
+function changeReinfMonth(direction) {
+  initReinfCompetenciaSelect();
+  var sel = document.getElementById('reinf-competencia');
+  if (!sel) return;
+  var nextIndex = sel.selectedIndex + (direction < 0 ? 1 : -1);
+  if (nextIndex < 0 || nextIndex >= sel.options.length) return;
+  sel.selectedIndex = nextIndex;
+  renderReinf();
+}
+
+function goToCurrentReinfMonth() {
+  initReinfCompetenciaSelect();
+  var sel = document.getElementById('reinf-competencia');
+  if (sel) sel.selectedIndex = 0;
+  renderReinf();
+}
+
 function renderReinf() {
-  initReinfAnoSelect();
-  var ano = parseInt(document.getElementById('reinf-ano').value) || new Date().getFullYear();
+  initReinfCompetenciaSelect();
+  var period = getSelectedReinfPeriod();
+  var ano = period.ano, mes = period.mes;
   var rf = document.getElementById('reinf-filter-regime').value;
-  var curMes = new Date().getMonth(); // 0-based
   var reinf = getReinf();
+  var finance = getReinfFinance();
   var list = rf ? empresas.filter(function(e){return e.regime===rf;}) : empresas.slice();
   list = list.slice().sort(function(a,b){return a.nome.localeCompare(b.nome);});
 
+  var delivery = new Date(ano, mes + 1, 1);
+  var periodTitle = document.getElementById('reinf-period-title');
+  var periodSub = document.getElementById('reinf-period-sub');
+  if (periodTitle) periodTitle.textContent = 'Competência ' + REINF_MESES_LONGOS[mes] + '/' + ano + ' · entrega em ' + REINF_MESES_LONGOS[delivery.getMonth()] + '/' + delivery.getFullYear();
+  if (periodSub) periodSub.textContent = 'Você está preenchendo os dados de ' + REINF_MESES_LONGOS[mes] + '/' + ano + ', que são enviados no mês seguinte, em ' + REINF_MESES_LONGOS[delivery.getMonth()] + '/' + delivery.getFullYear() + '.';
+  var compSel = document.getElementById('reinf-competencia');
+  var prevBtn = document.getElementById('reinf-prev-btn');
+  var nextBtn = document.getElementById('reinf-next-btn');
+  if (prevBtn && compSel) prevBtn.disabled = compSel.selectedIndex >= compSel.options.length - 1;
+  if (nextBtn && compSel) nextBtn.disabled = compSel.selectedIndex <= 0;
+
   // KPIs
-  var totalCells = 0, entregue = 0, pendente = 0, atrasado = 0;
+  var entregue = 0, pendente = 0, atrasado = 0, retidos = 0, lucros = 0;
   list.forEach(function(e) {
-    for (var m = 0; m <= (ano < new Date().getFullYear() ? 11 : curMes); m++) {
-      var key = e.id + '_' + ano + '_' + m;
-      var st = (reinf[key] || 'pendente');
-      totalCells++;
-      if (st === 'entregue') entregue++;
-      else if (st === 'pendente') pendente++;
-      else if (st === 'atrasado') atrasado++;
-    }
+    var key = reinfRecordKey(e.id, ano, mes);
+    var st = reinf[key] || 'pendente';
+    if (st === 'entregue') entregue++;
+    else if (st === 'pendente') pendente++;
+    else if (st === 'atrasado') atrasado++;
+    var values = finance[key] || {};
+    retidos += Number(values.retidos) || 0;
+    lucros += Number(values.lucros) || 0;
   });
-  var pct = totalCells > 0 ? Math.round(entregue/totalCells*100) : 0;
+  var totalEligible = entregue + pendente + atrasado;
+  var pct = totalEligible > 0 ? Math.round(entregue/totalEligible*100) : 0;
   document.getElementById('reinf-kpis').innerHTML =
     '<div class="reinf-kpi"><div class="reinf-kpi-label">Entregues</div><div class="reinf-kpi-val" style="color:var(--green)">' + entregue + '</div></div>' +
     '<div class="reinf-kpi"><div class="reinf-kpi-label">Pendentes</div><div class="reinf-kpi-val" style="color:var(--yellow)">' + pendente + '</div></div>' +
     '<div class="reinf-kpi"><div class="reinf-kpi-label">Atrasadas</div><div class="reinf-kpi-val" style="color:var(--red)">' + atrasado + '</div></div>' +
-    '<div class="reinf-kpi"><div class="reinf-kpi-label">% Cumprimento</div><div class="reinf-kpi-val" style="color:' + (pct>=80?'var(--green)':pct>=50?'var(--yellow)':'var(--red)') + '">' + pct + '%</div></div>';
+    '<div class="reinf-kpi"><div class="reinf-kpi-label">Cumprimento</div><div class="reinf-kpi-val" style="color:' + (pct>=80?'var(--green)':pct>=50?'var(--yellow)':'var(--red)') + '">' + pct + '%</div></div>' +
+    '<div class="reinf-kpi"><div class="reinf-kpi-label">Impostos retidos</div><div class="reinf-kpi-val" style="font-size:19px;color:var(--blue)">' + fmtReinfCurrency(retidos) + '</div></div>' +
+    '<div class="reinf-kpi"><div class="reinf-kpi-label">Lucros distribuídos</div><div class="reinf-kpi-val" style="font-size:19px;color:var(--orange)">' + fmtReinfCurrency(lucros) + '</div></div>';
 
-  // Matrix
-  var html = '<table><thead><tr><th class="empresa-col">Empresa</th>';
-  for (var m = 0; m < 12; m++) {
-    var isFuture = ano === new Date().getFullYear() && m > curMes;
-    html += '<th style="' + (isFuture?'opacity:.35':'') + '">' + REINF_MESES[m] + '</th>';
-  }
-  html += '</tr></thead><tbody>';
+  // Uma competência por vez
+  var canEdit = !currentUser || currentUser.role !== 'viewer';
+  var disabled = canEdit ? '' : ' disabled';
+  var html = '<table><thead><tr>' +
+    '<th class="empresa-col">Empresa</th><th>Status</th>' +
+    '<th style="text-align:right">Impostos retidos (R$)</th>' +
+    '<th style="text-align:right">Distribuição de lucros (R$)</th>' +
+    '<th style="text-align:left">Observações do mês</th></tr></thead><tbody>';
 
   list.forEach(function(e) {
+    var key = reinfRecordKey(e.id, ano, mes);
+    var st = reinf[key] || 'pendente';
+    var values = finance[key] || {};
     html += '<tr><td class="empresa-col" onclick="openDetail(\'' + e.id + '\')">' +
-      e.nome.slice(0,32) + (e.nome.length > 32 ? '…' : '') +
-      '<div style="font-size:9px;color:var(--text3);margin-top:1px;">' + (e.regime||'') + '</div>' +
-    '</td>';
-    for (var m = 0; m < 12; m++) {
-      var isFuture = ano === new Date().getFullYear() && m > curMes;
-      var key = e.id + '_' + ano + '_' + m;
-      var st = reinf[key] || (isFuture ? 'na' : 'pendente');
-      var cls = {entregue:'reinf-entregue', pendente:'reinf-pendente', atrasado:'reinf-atrasado', na:'reinf-na'}[st] || 'reinf-na';
-      var lbl = {entregue:'E', pendente:'P', atrasado:'A', na:'—'}[st] || '—';
-      var clickable = !isFuture && currentUser && currentUser.role !== 'viewer';
-      html += '<td><div class="reinf-cell ' + cls + '" ' +
-        (clickable ? 'onclick="cycleReinf(\'' + e.id + '\',' + ano + ',' + m + ')" title="Clique para alternar"' : 'style="cursor:default"') +
-        '>' + lbl + '</div></td>';
-    }
-    html += '</tr>';
+      reinfEscape(e.nome.slice(0,38)) + (e.nome.length > 38 ? '…' : '') +
+      '<div style="font-size:9px;color:var(--text3);margin-top:1px;">' + reinfEscape(e.regime||'') + '</div></td>' +
+      '<td><select class="reinf-status-select ' + st + '" onchange="setReinfStatus(\'' + e.id + '\',' + ano + ',' + mes + ',this.value)"' + disabled + '>' +
+        '<option value="pendente"' + (st==='pendente'?' selected':'') + '>Pendente</option>' +
+        '<option value="entregue"' + (st==='entregue'?' selected':'') + '>Entregue</option>' +
+        '<option value="atrasado"' + (st==='atrasado'?' selected':'') + '>Atrasado</option>' +
+        '<option value="na"' + (st==='na'?' selected':'') + '>Não se aplica</option></select></td>' +
+      '<td><input class="reinf-money-input" inputmode="decimal" placeholder="0,00" value="' + reinfEscape(fmtReinfInput(values.retidos)) + '" onchange="saveReinfFinanceField(\'' + e.id + '\',' + ano + ',' + mes + ',\'retidos\',this.value)" onfocus="this.select()"' + disabled + '></td>' +
+      '<td><input class="reinf-money-input" inputmode="decimal" placeholder="0,00" value="' + reinfEscape(fmtReinfInput(values.lucros)) + '" onchange="saveReinfFinanceField(\'' + e.id + '\',' + ano + ',' + mes + ',\'lucros\',this.value)" onfocus="this.select()"' + disabled + '></td>' +
+      '<td><input class="reinf-note-input" maxlength="180" placeholder="Observação opcional" value="' + reinfEscape(values.observacao||'') + '" onchange="saveReinfFinanceField(\'' + e.id + '\',' + ano + ',' + mes + ',\'observacao\',this.value)"' + disabled + '></td></tr>';
   });
-  html += '</tbody></table>';
+  html += list.length ? '</tbody></table>' : '<tr><td colspan="5" style="padding:24px;color:var(--text3)">Nenhuma empresa encontrada para este filtro.</td></tr></tbody></table>';
   document.getElementById('reinf-matrix').innerHTML = html;
 }
 
-function cycleReinf(eid, ano, mes) {
+function setReinfStatus(eid, ano, mes, status) {
   if (currentUser && currentUser.role === 'viewer') { toast('Sem permissão para editar', 'error'); return; }
+  if (['pendente','entregue','atrasado','na'].indexOf(status) < 0) return;
   var reinf = getReinf();
-  var key = eid + '_' + ano + '_' + mes;
-  var cur = reinf[key] || 'pendente';
-  var idx = REINF_CYCLE.indexOf(cur);
-  reinf[key] = REINF_CYCLE[(idx + 1) % REINF_CYCLE.length];
+  var key = reinfRecordKey(eid, ano, mes);
+  reinf[key] = status;
   saveReinf(reinf);
   var empresa = empresas.find(function(e){return e.id===eid;});
-  if (empresa) addAuditLog('reinf', 'ReINF ' + REINF_MESES[mes] + '/' + ano + ' → ' + reinf[key] + ' — ' + empresa.nome.slice(0,25));
+  if (empresa) addAuditLog('reinf', 'ReINF ' + REINF_MESES[mes] + '/' + ano + ' → ' + status + ' — ' + empresa.nome.slice(0,25));
   renderReinf();
 }
 
+function saveReinfFinanceField(eid, ano, mes, field, value) {
+  if (currentUser && currentUser.role === 'viewer') { toast('Sem permissão para editar', 'error'); return; }
+  if (['retidos','lucros','observacao'].indexOf(field) < 0) return;
+  var finance = getReinfFinance();
+  var key = reinfRecordKey(eid, ano, mes);
+  var record = finance[key] || {retidos:0, lucros:0, observacao:''};
+  var newValue = field === 'observacao' ? String(value || '').trim() : parseReinfMoney(value);
+  if (record[field] === newValue) return;
+  record[field] = newValue;
+  finance[key] = record;
+  saveReinfFinance(finance);
+  var empresa = empresas.find(function(e){return e.id===eid;});
+  if (empresa) {
+    var fieldLabel = {retidos:'Impostos retidos', lucros:'Lucros distribuídos', observacao:'Observação ReINF'}[field];
+    var displayValue = field === 'observacao' ? (newValue || 'removida') : fmtReinfCurrency(newValue);
+    addAuditLog('reinf', fieldLabel + ' ' + REINF_MESES[mes] + '/' + ano + ': ' + displayValue + ' — ' + empresa.nome.slice(0,25));
+  }
+  renderReinf();
+}
+
+function reinfCsvCell(value) {
+  return '"' + String(value == null ? '' : value).replace(/"/g, '""') + '"';
+}
+
 function exportReinfCSV() {
-  var ano = parseInt(document.getElementById('reinf-ano').value) || new Date().getFullYear();
+  var period = getSelectedReinfPeriod();
+  var ano = period.ano, mes = period.mes;
   var reinf = getReinf();
-  var lines = [['Empresa','CNPJ','Regime'].concat(REINF_MESES).join(';')];
-  empresas.slice().sort(function(a,b){return a.nome.localeCompare(b.nome);}).forEach(function(e) {
-    var row = ['"'+e.nome+'"', e.cnpj||'', e.regime||''];
-    for (var m = 0; m < 12; m++) {
-      var key = e.id + '_' + ano + '_' + m;
-      row.push(reinf[key] || 'pendente');
-    }
-    lines.push(row.join(';'));
+  var finance = getReinfFinance();
+  var rf = document.getElementById('reinf-filter-regime').value;
+  var list = rf ? empresas.filter(function(e){return e.regime===rf;}) : empresas.slice();
+  var lines = [['Competência','Empresa','CNPJ','Regime','Status','Impostos retidos','Distribuição de lucros','Observações'].join(';')];
+  list.sort(function(a,b){return a.nome.localeCompare(b.nome);}).forEach(function(e) {
+    var key = reinfRecordKey(e.id, ano, mes);
+    var values = finance[key] || {};
+    lines.push([
+      reinfCsvCell(String(mes + 1).padStart(2,'0') + '/' + ano),
+      reinfCsvCell(e.nome), reinfCsvCell(e.cnpj||''), reinfCsvCell(e.regime||''),
+      reinfCsvCell(reinf[key] || 'pendente'),
+      reinfCsvCell((Number(values.retidos)||0).toFixed(2).replace('.',',')),
+      reinfCsvCell((Number(values.lucros)||0).toFixed(2).replace('.',',')),
+      reinfCsvCell(values.observacao||'')
+    ].join(';'));
   });
   var blob = new Blob(['﻿'+lines.join('\n')], {type:'text/csv;charset=utf-8'});
   var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = 'reinf_' + ano + '.csv'; a.click();
+  a.download = 'reinf_' + ano + '_' + String(mes + 1).padStart(2,'0') + '.csv'; a.click();
   toast('ReINF exportado!');
 }
 
